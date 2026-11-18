@@ -1,0 +1,11 @@
+{
+  "titulo": "Mesa de centro",
+  "materiais": "Mármore",
+  "ambiente": "Sala",
+  "local": "",
+  "capa": "../../assets/projetos/mesa-de-centro/capa.webp",
+  "capaAlt": "Mesa de centro redonda com tampo em mármore branco",
+  "descricao": "",
+  "galeria": [],
+  "prioridade": "normal"
+}

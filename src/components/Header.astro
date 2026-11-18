@@ -3,11 +3,11 @@ import Logo from './Logo.astro';
 import { INSTAGRAM_URL, MAPS_DIRECTIONS, WHATSAPP_DISPLAY, whatsappLink } from '../lib/contact';
 
 const links = [
-  { label: 'Projetos', href: '#projetos' },
-  { label: 'Materiais', href: '#materiais' },
-  { label: 'Processo', href: '#garantias' },
-  { label: 'Para arquitetos', href: '#arquitetos' },
-  { label: 'Showroom', href: '#showroom' },
+  { label: 'Projetos', href: '/#projetos' },
+  { label: 'Materiais', href: '/#materiais' },
+  { label: 'Processo', href: '/#garantias' },
+  { label: 'Para arquitetos', href: '/#arquitetos' },
+  { label: 'Showroom', href: '/#showroom' },
 ];
 ---
 
@@ -20,7 +20,7 @@ const links = [
 -->
 <header id="site-header" class="hdr fixed inset-x-0 top-0 z-50" data-state="top" data-tone="light">
   <div class="hdr-bar mx-auto flex items-center justify-between gap-8 lg:gap-12">
-    <a href="#top" class="hdr-logo flex shrink-0 items-center [--logo-scale:0.62] lg:[--logo-scale:0.72]" aria-label="MCunha Marmoraria - início">
+    <a href="/" class="hdr-logo flex shrink-0 items-center [--logo-scale:0.62] lg:[--logo-scale:0.72]" aria-label="MCunha Marmoraria - início">
       <Logo />
     </a>
 
@@ -38,7 +38,7 @@ const links = [
       </ul>
     </nav>
 
-    <a href="#orcamento" class="btn btn-gold hidden !px-5 !py-[10px] !text-[15px] sm:inline-flex">
+    <a href="/#orcamento" class="btn btn-gold hidden !px-5 !py-[10px] !text-[15px] sm:inline-flex">
       Solicitar Orçamento
       <img src="/svg/arrow-dark.svg" alt="" width="10" height="9" class="w-[10px]" />
     </a>
@@ -94,7 +94,7 @@ const links = [
           <span class="font-semibold">QI 21, Bloco E, Loja 54 · Lago Sul, Brasília</span>
         </a>
       </div>
-      <a href="#orcamento" class="menu-item btn btn-gold w-full" style="--d:7">
+      <a href="/#orcamento" class="menu-item btn btn-gold w-full" style="--d:7">
         Solicitar Orçamento
         <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
       </a>
@@ -280,10 +280,13 @@ const links = [
     toggle.setAttribute('aria-expanded', String(open));
     toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
     const lenis = (window as any).__lenis;
+    // Enquanto aberto, o resto da página fica inacessível ao teclado e leitores de tela
+    document.querySelectorAll<HTMLElement>('body > :not(#site-header):not(script)').forEach((el) => el.toggleAttribute('inert', open));
     if (open) {
       header.dataset.hidden = 'false';
       lenis?.stop();
       document.body.style.overflow = 'hidden';
+      setTimeout(() => menu.querySelector<HTMLElement>('.mobile-link')?.focus({ preventScroll: true }), 350);
     } else {
       lenis?.start();
       document.body.style.overflow = '';
@@ -292,7 +295,12 @@ const links = [
 
   toggle.addEventListener('click', () => setOpen(menu.dataset.open !== 'true'));
   menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
-  document.addEventListener('keydown', (e) => e.key === 'Escape' && menu.dataset.open === 'true' && setOpen(false));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.dataset.open === 'true') {
+      setOpen(false);
+      toggle.focus();
+    }
+  });
   desktop.addEventListener('change', (e) => e.matches && setOpen(false));
 
   let last = window.scrollY;

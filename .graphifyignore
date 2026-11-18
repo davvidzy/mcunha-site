@@ -1,0 +1,6 @@
+# Só o código do site entra no grafo
+.claude/
+AGENTS.md
+README.MD
+graphify-out/
+public/svg/

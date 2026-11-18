@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import './painel.css';
+import Logo from '../components/Logo.astro';
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>{title} · Painel MCunha</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap"
+    />
+  </head>
+  <body class="min-h-dvh bg-[#faf9f7] text-navy-900">
+    <header class="border-b border-stone-200/70 bg-white">
+      <div class="mx-auto flex h-16 max-w-[1040px] items-center justify-between gap-4 px-5">
+        <a href="/painel" class="flex items-center gap-3" aria-label="Painel MCunha: início">
+          <span class="[--logo-scale:0.42]"><Logo /></span>
+          <span class="text-sm text-stone-400">Painel</span>
+        </a>
+        <nav class="flex items-center gap-2" aria-label="Ações">
+          <slot name="acoes" />
+        </nav>
+      </div>
+    </header>
+    <slot />
+    <div class="pn-toast" role="status" aria-live="polite" data-toast></div>
+    <script>
+      import { toast } from './lib/ui';
+      // Aviso vindo de outra página (ex.: depois de salvar e voltar ao início)
+      const msg = new URLSearchParams(location.search).get('aviso');
+      if (msg) {
+        toast(msg);
+        history.replaceState(null, '', location.pathname);
+      }
+    </script>
+  </body>
+</html>

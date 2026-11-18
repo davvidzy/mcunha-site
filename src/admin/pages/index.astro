@@ -1,0 +1,318 @@
+---
+// Início do painel: organizar a home e acompanhar os projetos.
+import PainelLayout from '../PainelLayout.astro';
+import { listarProjetos, lerHome, miniatura, type ProjetoPainel as Projeto } from '../lib/dados';
+import { HOME_VAGAS, PRIORIDADES } from '../../lib/projetos';
+
+const FOTOS_MIN = 3;
+const EDIT = (id: string) => `/painel/projetos/${id}`;
+
+const todos = listarProjetos();
+const escolhidos = lerHome()
+  .map((s) => todos.find((p) => p.id === s))
+  .filter((p): p is Projeto => Boolean(p))
+  .slice(0, HOME_VAGAS);
+// Vagas livres: o site completa sozinho com os de maior prioridade
+const automaticos = todos.filter((p) => !escolhidos.includes(p)).slice(0, HOME_VAGAS - escolhidos.length);
+
+const faltas = (p: Projeto) =>
+  [
+    !p.descricao.trim() && 'texto',
+    p.galeria.length < FOTOS_MIN && 'fotos',
+    !p.local.trim() && 'local',
+  ].filter(Boolean) as string[];
+const pendentes = todos.filter((p) => faltas(p).length).length;
+const cheia = escolhidos.length >= HOME_VAGAS;
+---
+
+<PainelLayout title="Projetos">
+  <Fragment slot="acoes">
+    <a href="/" target="_blank" rel="noopener" class="pn-btn pn-ghost">Ver site</a>
+    <a href="/painel/novo" class="pn-btn pn-primary">Novo projeto</a>
+  </Fragment>
+
+  <main class="mx-auto flex max-w-[1040px] flex-col gap-12 px-5 py-10 sm:py-14">
+    <div class="flex flex-col gap-1">
+      <h1 class="font-serif text-[2.25rem] leading-tight">Projetos</h1>
+      <p class="text-[15px] text-stone-600">
+        {todos.length} no site
+        {pendentes > 0 && <span> · {pendentes} com informações faltando</span>}
+      </p>
+    </div>
+
+    <!-- Página inicial: arrastar para ordenar -->
+    <section aria-labelledby="t-home" class="flex flex-col gap-4">
+      <div>
+        <h2 id="t-home" class="pn-h2">Página inicial</h2>
+        <p class="pn-help">Arraste para mudar a ordem. Salva sozinho.</p>
+      </div>
+
+      <ol class="pn-box" data-home-list>
+        {
+          escolhidos.map((p) => (
+            <li class="pn-home-row" data-id={p.id}>
+              <button type="button" class="pn-handle" aria-label={`Mover ${p.titulo}. Use as setas para cima e para baixo.`} data-handle>
+                <svg width="14" height="20" viewBox="0 0 14 20" aria-hidden="true">
+                  {[4, 10, 16].map((y) => [<circle cx="4" cy={y} r="1.6" />, <circle cx="10" cy={y} r="1.6" />])}
+                </svg>
+              </button>
+              <span class="pn-pos" data-pos />
+              <img src={miniatura(p.capa)} alt="" width="120" height="88" loading="lazy" class="pn-thumb" />
+              <a href={EDIT(p.id)} class="flex min-w-0 flex-1 flex-col">
+                <span class="truncate font-medium">{p.titulo}</span>
+                <span class="truncate text-[13px] text-stone-600">{p.materiais}</span>
+              </a>
+              <button type="button" class="pn-icon" aria-label={`Tirar ${p.titulo} da página inicial`} title="Tirar da página inicial" data-remove>
+                <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" /></svg>
+              </button>
+            </li>
+          ))
+        }
+        {
+          automaticos.map((p) => (
+            <li class="pn-home-row pn-auto">
+              <span class="pn-handle" aria-hidden="true" />
+              <span class="pn-pos" data-pos />
+              <img src={miniatura(p.capa)} alt="" width="120" height="88" loading="lazy" class="pn-thumb opacity-50" />
+              <span class="flex min-w-0 flex-1 flex-col">
+                <span class="truncate text-stone-600">Vaga livre</span>
+                <span class="truncate text-[13px] text-stone-400">No site aparece {p.titulo}, pela prioridade</span>
+              </span>
+            </li>
+          ))
+        }
+        {
+          escolhidos.length + automaticos.length === 0 && (
+            <li class="px-5 py-6 text-[15px] text-stone-600">Cadastre um projeto para ele aparecer aqui.</li>
+          )
+        }
+      </ol>
+    </section>
+
+    <!-- Todos os projetos -->
+    <section aria-labelledby="t-todos" class="flex flex-col gap-4">
+      <div>
+        <h2 id="t-todos" class="pn-h2">Todos os projetos</h2>
+        <p class="pn-help">Prioridade alta aparece primeiro na página de projetos.</p>
+      </div>
+
+      {
+        todos.length === 0 ? (
+          <div class="pn-box flex flex-col items-start gap-4 p-8">
+            <p class="text-stone-600">Nenhum projeto ainda. Título, materiais e uma foto de capa bastam para começar.</p>
+            <a href="/painel/novo" class="pn-btn pn-primary">Novo projeto</a>
+          </div>
+        ) : (
+          <ul class="pn-box">
+            {todos.map((p) => {
+              const f = faltas(p);
+              const naHome = escolhidos.includes(p);
+              return (
+                <li class="pn-row">
+                  <a href={EDIT(p.id)} class="flex min-w-0 flex-1 items-center gap-4">
+                    <img src={miniatura(p.capa)} alt="" width="120" height="88" loading="lazy" class="pn-thumb" />
+                    <span class="flex min-w-0 flex-col">
+                      <span class="truncate font-medium">{p.titulo}</span>
+                      <span class="truncate text-[13px]">
+                        {f.length ? <span class="text-gold-700">Falta {f.join(', ')}</span> : <span class="text-stone-600">Completo</span>}
+                      </span>
+                    </span>
+                  </a>
+
+                  <div class="flex items-center gap-2 max-sm:w-full max-sm:justify-between max-sm:pl-[76px]">
+                    <div class="pn-seg" role="radiogroup" aria-label={`Prioridade de ${p.titulo}`} data-prioridade={p.id}>
+                      {PRIORIDADES.map((o) => (
+                        <button type="button" role="radio" aria-checked={String(p.prioridade === o.value)} data-value={o.value}>
+                          {o.label}
+                        </button>
+                      ))}
+                    </div>
+                    {naHome ? (
+                      <span class="pn-tag">Na home</span>
+                    ) : (
+                      <button
+                        type="button"
+                        class="pn-btn pn-ghost !min-h-8 !px-3 !text-[13px]"
+                        data-add={p.id}
+                        disabled={cheia}
+                        title={cheia ? 'A página inicial já tem 3 projetos. Tire um para liberar a vaga.' : undefined}
+                      >
+                        + Home
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )
+      }
+    </section>
+  </main>
+</PainelLayout>
+
+<script>
+  import Sortable from 'sortablejs';
+  import { acao, toast } from '../lib/ui';
+
+  const list = document.querySelector<HTMLOListElement>('[data-home-list]')!;
+  const homeIds = () => Array.from(list.querySelectorAll<HTMLElement>('li[data-id]')).map((li) => li.dataset.id!);
+  const numerar = () => list.querySelectorAll<HTMLElement>('[data-pos]').forEach((el, i) => (el.textContent = String(i + 1)));
+  const salvarHome = async (ids = homeIds()) => {
+    const ok = await acao({ acao: 'home', destaques: ids });
+    if (ok) toast('Ordem da página inicial salva');
+    return ok;
+  };
+  numerar();
+
+  // Arrastar (mouse e toque)
+  Sortable.create(list, {
+    handle: '[data-handle]',
+    draggable: 'li[data-id]',
+    animation: 220,
+    easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+    ghostClass: 'is-ghost',
+    chosenClass: 'is-chosen',
+    onEnd: (e) => {
+      numerar();
+      if (e.oldIndex !== e.newIndex) salvarHome();
+    },
+  });
+
+  // Teclado: setas no puxador
+  list.querySelectorAll<HTMLButtonElement>('[data-handle]').forEach((h) =>
+    h.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+      e.preventDefault();
+      const li = h.closest('li')!;
+      const alvo = (e.key === 'ArrowUp' ? li.previousElementSibling : li.nextElementSibling) as HTMLElement | null;
+      if (!alvo?.dataset.id) return;
+      e.key === 'ArrowUp' ? alvo.before(li) : alvo.after(li);
+      h.focus();
+      numerar();
+      salvarHome();
+    }),
+  );
+
+  // Tirar / adicionar: salva e recarrega para mostrar as vagas
+  list.querySelectorAll<HTMLButtonElement>('[data-remove]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const id = b.closest('li')!.dataset.id!;
+      if (await acao({ acao: 'home', destaques: homeIds().filter((x) => x !== id) })) location.href = '/painel?aviso=Removido da página inicial';
+    }),
+  );
+  document.querySelectorAll<HTMLButtonElement>('[data-add]').forEach((b) =>
+    b.addEventListener('click', async () => {
+      b.disabled = true;
+      if (await acao({ acao: 'home', destaques: [...homeIds(), b.dataset.add!] })) location.href = '/painel?aviso=Adicionado à página inicial';
+      else b.disabled = false;
+    }),
+  );
+
+  // Prioridade
+  document.querySelectorAll<HTMLElement>('[data-prioridade]').forEach((g) => {
+    const opts = Array.from(g.querySelectorAll<HTMLButtonElement>('button'));
+    const marcar = (v: string) => opts.forEach((o) => o.setAttribute('aria-checked', String(o.dataset.value === v)));
+    opts.forEach((o) =>
+      o.addEventListener('click', async () => {
+        const antes = opts.find((x) => x.getAttribute('aria-checked') === 'true')?.dataset.value;
+        if (antes === o.dataset.value) return;
+        marcar(o.dataset.value!);
+        if (await acao({ acao: 'prioridade', id: g.dataset.prioridade, prioridade: o.dataset.value })) toast('Prioridade salva');
+        else marcar(antes!);
+      }),
+    );
+  });
+</script>
+
+<style>
+  .pn-home-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px 12px 8px;
+    background: #fff;
+  }
+  .pn-home-row.is-ghost {
+    background: var(--color-gold-50);
+  }
+  .pn-home-row.is-ghost > * {
+    opacity: 0.35;
+  }
+  .pn-home-row.is-chosen {
+    box-shadow: 0 10px 30px -12px rgb(13 28 49 / 0.35);
+  }
+  .pn-auto {
+    background: #fcfbf9;
+  }
+  .pn-handle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    color: var(--color-stone-400);
+    fill: currentColor;
+    cursor: grab;
+    touch-action: none;
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .pn-handle:hover {
+    color: var(--color-navy-900);
+    background: var(--color-stone-100);
+  }
+  .pn-auto .pn-handle {
+    cursor: default;
+  }
+  .pn-pos {
+    width: 14px;
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-stone-400);
+  }
+  .pn-icon {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    color: var(--color-stone-400);
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .pn-icon:hover {
+    color: var(--color-navy-900);
+    background: var(--color-stone-100);
+  }
+  .pn-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    transition: background-color 0.2s;
+  }
+  .pn-row:hover {
+    background: #fcfbf9;
+  }
+  @media (max-width: 639px) {
+    .pn-row {
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+  }
+  .pn-tag {
+    display: inline-flex;
+    align-items: center;
+    min-height: 32px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--color-stone-600);
+    background: var(--color-stone-100);
+    white-space: nowrap;
+  }
+</style>

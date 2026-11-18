@@ -1,0 +1,158 @@
+---
+import { getProjetos } from '../../lib/projetos';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { whatsappLink } from '../../lib/contact';
+
+const projetos = await getProjetos();
+// Filtro só com os ambientes que têm projeto
+const ambientes = [...new Set(projetos.map((p) => p.data.ambiente))];
+---
+
+<Layout
+  title="Projetos | MCunha Marmoraria"
+  description="Projetos em mármore, granito, quartzito e ônix executados pela MCunha Marmoraria no Distrito Federal."
+>
+  <Header />
+  <main id="conteudo" tabindex="-1" class="bg-cream outline-none pt-[64px] lg:pt-[76px]">
+    <section class="container-x pt-[clamp(2.5rem,6vw,5rem)] pb-[clamp(5rem,8.9vw,8rem)]">
+      <nav aria-label="Você está em" class="mb-8 text-sm text-stone-600">
+        <a href="/" class="hover:underline">Início</a>
+        <span class="mx-2" aria-hidden="true">/</span>
+        <span aria-current="page" class="text-navy-900">Projetos</span>
+      </nav>
+
+      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div class="flex flex-col gap-4">
+          <h1 class="font-serif text-[length:var(--text-display)] leading-none text-navy-900 uppercase" data-reveal="split">Projetos</h1>
+          <p class="section-sub text-navy-900" data-reveal data-delay="0.15">Cada chapa, um projeto único</p>
+        </div>
+        <p class="text-sm text-stone-600" data-reveal data-delay="0.2">
+          <span data-count-visible>{projetos.length}</span>{' '}<span data-count-label>{projetos.length === 1 ? 'projeto' : 'projetos'}</span>
+        </p>
+      </div>
+
+      {
+        ambientes.length > 1 && (
+          <div role="group" aria-label="Filtrar por ambiente" class="-mx-5 mt-10 flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:px-0" data-reveal data-delay="0.25">
+            <button type="button" class="filter-chip" aria-pressed="true" data-filter="">
+              Todos
+            </button>
+            {ambientes.map((a) => (
+              <button type="button" class="filter-chip" aria-pressed="false" data-filter={a}>
+                {a}
+              </button>
+            ))}
+          </div>
+        )
+      }
+
+      {
+        projetos.length > 0 ? (
+          <ul class="mt-8 grid gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3" data-projects-grid>
+            {projetos.map((p) => (
+              <li data-ambiente={p.data.ambiente} class="project-item" data-reveal>
+                <ProjectCard projeto={p} sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 92vw" />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="mt-12 text-[length:var(--text-body)] text-stone-600">Em breve, nossos projetos estarão aqui.</p>
+        )
+      }
+    </section>
+
+    <!-- Chamada final -->
+    <section data-theme="dark" class="border-t-[2.5px] border-gold-400 bg-navy-900 text-gold-50">
+      <div class="container-x flex flex-col items-start gap-8 py-[clamp(4rem,7vw,6.5rem)] md:flex-row md:items-center md:justify-between">
+        <div class="flex flex-col gap-3">
+          <h2 class="font-serif text-[length:var(--text-title)] leading-[1.05]" data-reveal="split">Tem um projeto em mente?</h2>
+          <p class="text-[length:var(--text-body)] text-gold-50/80" data-reveal data-delay="0.1">
+            Envie fotos e medidas aproximadas e receba uma estimativa.
+          </p>
+        </div>
+        <a
+          href={whatsappLink('Olá! Vi os projetos no site e gostaria de um orçamento.')}
+          target="_blank"
+          rel="noopener"
+          class="btn btn-gold max-sm:!px-5 max-sm:!text-[15px]"
+          data-reveal
+          data-delay="0.2"
+        >
+          Solicitar orçamento
+          <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+        </a>
+      </div>
+    </section>
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  .filter-chip {
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid var(--color-stone-400);
+    color: var(--color-stone-600);
+    font-size: 15px;
+    line-height: 1.4;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s,
+      transform 0.3s var(--ease-out-expo);
+  }
+  .filter-chip:hover {
+    border-color: var(--color-navy-900);
+    color: var(--color-navy-900);
+  }
+  .filter-chip[aria-pressed='true'] {
+    background: var(--color-navy-900);
+    border-color: var(--color-navy-900);
+    color: var(--color-gold-50);
+  }
+  .filter-chip:active {
+    transform: scale(0.96);
+  }
+  .project-item[hidden] {
+    display: none;
+  }
+</style>
+
+<script>
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+  const items = Array.from(document.querySelectorAll<HTMLElement>('[data-projects-grid] > li'));
+  const count = document.querySelector('[data-count-visible]');
+  const label = document.querySelector('[data-count-label]');
+
+  chips.forEach((chip) =>
+    chip.addEventListener('click', () => {
+      const f = chip.dataset.filter || '';
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+      let n = 0;
+      items.forEach((li) => {
+        const show = !f || li.dataset.ambiente === f;
+        li.hidden = !show;
+        if (show) {
+          n++;
+          li.style.opacity = '1';
+          li.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], {
+            duration: 500,
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+          });
+        }
+      });
+      if (count) count.textContent = String(n);
+      if (label) label.textContent = n === 1 ? 'projeto' : 'projetos';
+      ScrollTrigger.refresh();
+    }),
+  );
+</script>

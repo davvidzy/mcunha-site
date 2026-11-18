@@ -1,0 +1,603 @@
+---
+// Criar / editar projeto. /painel/novo e /painel/projetos/[id]
+import PainelLayout from '../PainelLayout.astro';
+import { AMBIENTES, MAX_MB, lerHome } from '../lib/projeto';
+import { lerProjeto, miniatura } from '../lib/dados';
+import { PRIORIDADES } from '../../lib/projetos';
+
+const { id } = Astro.params;
+const p = id ? lerProjeto(id) : null;
+if (id && !p) return Astro.redirect('/painel?aviso=Projeto não encontrado');
+const galeria = p?.galeria ?? [];
+const posHome = id ? lerHome().indexOf(id) : -1;
+const titulo = p?.titulo ?? 'Novo projeto';
+---
+
+<PainelLayout title={titulo}>
+  <Fragment slot="acoes">
+    {id && <a href={`/projetos/${id}/`} target="_blank" rel="noopener" class="pn-btn pn-ghost">Ver página</a>}
+  </Fragment>
+
+  <form class="mx-auto max-w-[1040px] px-5 pt-8 pb-32 sm:pt-10" data-form novalidate data-id={id ?? ''}>
+    <a href="/painel" class="inline-flex items-center gap-1 text-sm text-stone-600 hover:text-navy-900">← Projetos</a>
+    <h1 class="mt-3 mb-8 font-serif text-[2.25rem] leading-tight" data-titulo-h1>{titulo}</h1>
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
+      <div class="flex flex-col gap-6">
+        <!-- Informações -->
+        <section class="pn-box flex flex-col gap-5 p-5 sm:p-6" aria-labelledby="s-info">
+          <h2 id="s-info" class="pn-h2">Informações</h2>
+          <div class="pn-field" data-campo="titulo">
+            <label class="pn-label" for="f-titulo">Título</label>
+            <input id="f-titulo" name="titulo" class="pn-input" value={p?.titulo} placeholder="Ex.: Cozinha gourmet" maxlength="120" required />
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+          <div class="pn-field" data-campo="materiais">
+            <label class="pn-label" for="f-materiais">Materiais</label>
+            <input id="f-materiais" name="materiais" class="pn-input" value={p?.materiais} placeholder="Ex.: Travertino e quartzo" maxlength="120" required />
+            <p class="pn-help !mt-0">Aparece em destaque acima do título no card.</p>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+          <fieldset class="pn-field">
+            <legend class="pn-label mb-1.5">Ambiente</legend>
+            <div class="pn-chips">
+              {
+                AMBIENTES.map((a, i) => (
+                  <label>
+                    <input type="radio" name="ambiente" value={a} class="sr-only" checked={p ? p.ambiente === a : i === 0} />
+                    <span>{a}</span>
+                  </label>
+                ))
+              }
+            </div>
+          </fieldset>
+          <div class="pn-field">
+            <label class="pn-label" for="f-local">Local <small>opcional</small></label>
+            <input id="f-local" name="local" class="pn-input" value={p?.local} placeholder="Ex.: Lago Sul, Brasília" maxlength="120" />
+          </div>
+        </section>
+
+        <!-- Capa -->
+        <section class="pn-box flex flex-col gap-5 p-5 sm:p-6" aria-labelledby="s-capa">
+          <div>
+            <h2 id="s-capa" class="pn-h2">Foto de capa</h2>
+            <p class="pn-help">Aparece no card e no topo da página. Prefira uma foto na horizontal.</p>
+          </div>
+          <div class="pn-field" data-campo="capa">
+            <div class="pn-drop" data-drop-capa data-tem={p ? '' : undefined}>
+              <input type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" id="f-capa" data-capa-input />
+              <div class="pn-drop-preview" data-capa-preview>
+                {p && <img src={miniatura(p.capa, 1200)} alt="" class="size-full object-cover" />}
+              </div>
+              <label for="f-capa" class="pn-drop-empty">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M4 16l4.6-4.6a2 2 0 012.8 0L16 16m-2-2l1.6-1.6a2 2 0 012.8 0L20 14M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                <span class="font-medium text-navy-900">Arraste uma foto ou clique para escolher</span>
+                <span class="text-[13px]">JPG, PNG ou WebP, até {MAX_MB} MB</span>
+              </label>
+              <label for="f-capa" class="pn-btn pn-ghost pn-drop-trocar">Trocar foto</label>
+            </div>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+          <div class="pn-field" data-campo="capaAlt">
+            <label class="pn-label" for="f-alt">Descrição da foto</label>
+            <input id="f-alt" name="capaAlt" class="pn-input" value={p?.capaAlt} placeholder="Ex.: Cozinha com bancada em quartzito branco" maxlength="200" required />
+            <p class="pn-help !mt-0">Uma frase sobre o que aparece. Ajuda no Google e para quem usa leitor de tela.</p>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+        </section>
+
+        <!-- Texto -->
+        <section class="pn-box flex flex-col gap-4 p-5 sm:p-6" aria-labelledby="s-texto">
+          <div>
+            <h2 id="s-texto" class="pn-h2"><label for="f-desc">Sobre o projeto</label></h2>
+            <p class="pn-help">Conte o desafio, a pedra escolhida e o resultado. Deixe uma linha em branco entre parágrafos.</p>
+          </div>
+          <textarea id="f-desc" name="descricao" class="pn-input" maxlength="6000" placeholder="Ex.: A cliente queria uma cozinha clara e resistente…">{p?.descricao}</textarea>
+        </section>
+
+        <!-- Galeria -->
+        <section class="pn-box flex flex-col gap-4 p-5 sm:p-6" aria-labelledby="s-gal" data-drop-galeria>
+          <div class="flex items-end justify-between gap-4">
+            <div>
+              <h2 id="s-gal" class="pn-h2">Galeria</h2>
+              <p class="pn-help">Arraste as fotos para mudar a ordem. Recomendado: 3 ou mais.</p>
+            </div>
+            <span class="text-[13px] text-stone-600 tabular-nums" data-gal-count></span>
+          </div>
+          <ul class="grid grid-cols-2 gap-3 sm:grid-cols-3" data-galeria>
+            {
+              galeria.map((g) => (
+                <li class="pn-tile" data-src={g.imagem}>
+                  <div class="pn-tile-img">
+                    <img src={miniatura(g.imagem, 480)} alt="" loading="lazy" class="size-full object-cover" />
+                    <button type="button" class="pn-tile-x" aria-label="Remover foto" data-remover>
+                      <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+                    </button>
+                  </div>
+                  <input class="pn-tile-alt" value={g.alt} placeholder="Descrição (opcional)" aria-label="Descrição da foto" maxlength="200" />
+                </li>
+              ))
+            }
+            <li class="pn-tile-add" data-fixo>
+              <label class="flex size-full cursor-pointer flex-col items-center justify-center gap-1 text-center">
+                <input type="file" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" data-gal-input />
+                <span class="text-2xl leading-none" aria-hidden="true">+</span>
+                <span class="text-[13px] font-medium">Adicionar fotos</span>
+              </label>
+            </li>
+          </ul>
+          <template data-tile-tpl>
+            <li class="pn-tile">
+              <div class="pn-tile-img">
+                <img alt="" class="size-full object-cover" />
+                <button type="button" class="pn-tile-x" aria-label="Remover foto" data-remover>
+                  <svg width="12" height="12" viewBox="0 0 14 14" aria-hidden="true"><path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </button>
+              </div>
+              <input class="pn-tile-alt" placeholder="Descrição (opcional)" aria-label="Descrição da foto" maxlength="200" />
+            </li>
+          </template>
+        </section>
+      </div>
+
+      <!-- Lateral -->
+      <aside class="flex flex-col gap-6 lg:sticky lg:top-6 lg:self-start">
+        <section class="pn-box flex flex-col gap-3 p-5" aria-labelledby="s-prio">
+          <h2 id="s-prio" class="pn-h2">Prioridade</h2>
+          <div class="pn-seg self-start" role="radiogroup" aria-labelledby="s-prio">
+            {
+              PRIORIDADES.map((o) => (
+                <label>
+                  <input type="radio" name="prioridade" value={o.value} class="sr-only" checked={(p?.prioridade ?? 'normal') === o.value} />
+                  <span>{o.label}</span>
+                </label>
+              ))
+            }
+          </div>
+          <p class="pn-help">Alta aparece primeiro na página de projetos.</p>
+        </section>
+
+        <section class="pn-box flex flex-col gap-4 p-5 text-[14px]">
+          <div>
+            <p class="font-semibold">Endereço</p>
+            <p class="mt-0.5 break-all text-stone-600">/projetos/<span data-slug>{id ?? '…'}</span>/</p>
+            {!id && <p class="pn-help">Gerado a partir do título.</p>}
+          </div>
+          <div>
+            <p class="font-semibold">Página inicial</p>
+            <p class="mt-0.5 text-stone-600">
+              {posHome >= 0 ? `Em destaque, posição ${posHome + 1}` : 'Não está em destaque'}
+              <a href="/painel" class="ml-1 underline underline-offset-2 hover:text-navy-900">Organizar</a>
+            </p>
+          </div>
+        </section>
+
+        {
+          id && (
+            <button type="button" class="pn-btn pn-danger self-start !px-3" data-excluir>
+              Excluir projeto
+            </button>
+          )
+        }
+      </aside>
+    </div>
+
+    <!-- Barra de salvar -->
+    <div class="pn-bar">
+      <div class="mx-auto flex max-w-[1040px] items-center justify-between gap-4 px-5">
+        <p class="text-[13px] text-stone-600" data-sujo aria-live="polite"></p>
+        <div class="flex gap-2">
+          <a href="/painel" class="pn-btn pn-ghost">Cancelar</a>
+          <button type="submit" class="pn-btn pn-primary min-w-[136px]" data-salvar>{id ? 'Salvar' : 'Criar projeto'}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {
+    id && (
+      <dialog class="pn-dialog" data-dialog-excluir>
+        <form method="dialog" class="flex flex-col gap-5 p-6">
+          <div class="flex flex-col gap-2">
+            <h2 class="text-lg font-semibold">Excluir “{p?.titulo}”?</h2>
+            <p class="text-[15px] text-stone-600">O projeto e as fotos dele saem do site. Não dá para desfazer.</p>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button value="nao" class="pn-btn pn-ghost" autofocus>Cancelar</button>
+            <button value="sim" class="pn-btn bg-[#b42318] text-white hover:bg-[#912018]">Excluir</button>
+          </div>
+        </form>
+      </dialog>
+    )
+  }
+</PainelLayout>
+
+<style>
+  .pn-drop {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border: 1.5px dashed var(--color-stone-400);
+    border-radius: 14px;
+    background: #fcfbf9;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  .pn-drop[data-arrastando] {
+    border-color: var(--color-navy-900);
+    background: var(--color-gold-50);
+  }
+  .pn-drop[data-tem] {
+    border-style: solid;
+    border-color: transparent;
+  }
+  .pn-drop-preview {
+    position: absolute;
+    inset: 0;
+  }
+  .pn-drop-preview :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pn-drop-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px;
+    text-align: center;
+    color: var(--color-stone-600);
+    cursor: pointer;
+  }
+  .pn-drop[data-tem] .pn-drop-empty {
+    display: none;
+  }
+  .pn-drop-trocar {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: none;
+    cursor: pointer;
+    box-shadow: 0 6px 16px -6px rgb(0 0 0 / 0.35);
+  }
+  .pn-drop[data-tem] .pn-drop-trocar {
+    display: inline-flex;
+  }
+
+  .pn-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .pn-tile-img {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    border-radius: 12px;
+    background: var(--color-stone-100);
+    cursor: grab;
+    touch-action: none;
+  }
+  .pn-tile-img :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .pn-tile-x {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.92);
+    color: var(--color-navy-900);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2);
+    transition: transform 0.2s;
+  }
+  .pn-tile-x:hover {
+    transform: scale(1.08);
+  }
+  .pn-tile-alt {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    font-size: 13px;
+    background: transparent;
+    transition:
+      border-color 0.2s,
+      background-color 0.2s;
+  }
+  .pn-tile-alt:hover {
+    background: #fcfbf9;
+  }
+  .pn-tile-alt:focus {
+    outline: none;
+    border-color: var(--color-stone-400);
+    background: #fff;
+  }
+  .pn-tile.is-ghost .pn-tile-img {
+    opacity: 0.35;
+  }
+  .pn-tile-add {
+    aspect-ratio: 4 / 3;
+    border: 1.5px dashed var(--color-stone-400);
+    border-radius: 12px;
+    color: var(--color-stone-600);
+    transition:
+      border-color 0.2s,
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .pn-tile-add:hover,
+  [data-drop-galeria][data-arrastando] .pn-tile-add {
+    border-color: var(--color-navy-900);
+    color: var(--color-navy-900);
+    background: var(--color-gold-50);
+  }
+
+  .pn-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    padding-block: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(13 28 49 / 0.08);
+    background: rgb(255 255 255 / 0.92);
+    backdrop-filter: blur(10px);
+  }
+  :global(.pn-spin) {
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgb(255 255 255 / 0.35);
+    border-top-color: #fff;
+    border-radius: 999px;
+    animation: pn-spin 0.7s linear infinite;
+  }
+  @keyframes pn-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+
+<script>
+  import Sortable from 'sortablejs';
+  import { acao, confirmar, toast } from '../lib/ui';
+
+  const MAX = 20 * 1024 * 1024;
+  const TIPOS = ['image/jpeg', 'image/png', 'image/webp'];
+  const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+  const id = form.dataset.id || '';
+  const btn = form.querySelector<HTMLButtonElement>('[data-salvar]')!;
+  const sujoEl = form.querySelector<HTMLElement>('[data-sujo]')!;
+  const rotuloBtn = btn.textContent!;
+
+  // ---------- Alterações não salvas ----------
+  let sujo = false;
+  const marcarSujo = () => {
+    sujo = true;
+    sujoEl.textContent = 'Alterações não salvas';
+  };
+  form.addEventListener('input', marcarSujo);
+  form.addEventListener('change', marcarSujo);
+  window.addEventListener('beforeunload', (e) => {
+    if (sujo) e.preventDefault();
+  });
+
+  const validarArquivo = (f: File) => {
+    if (!TIPOS.includes(f.type)) return `"${f.name}" não é JPG, PNG ou WebP`;
+    if (f.size > MAX) return `"${f.name}" passa de 20 MB`;
+    return '';
+  };
+
+  // ---------- Título e endereço ----------
+  const h1 = form.querySelector<HTMLElement>('[data-titulo-h1]')!;
+  const slugEl = form.querySelector<HTMLElement>('[data-slug]')!;
+  const slugify = (t: string) =>
+    t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  form.querySelector<HTMLInputElement>('#f-titulo')!.addEventListener('input', (e) => {
+    const v = (e.target as HTMLInputElement).value.trim();
+    h1.textContent = v || (id ? '' : 'Novo projeto');
+    if (!id) slugEl.textContent = slugify(v) || '…';
+  });
+
+  // ---------- Capa ----------
+  const drop = form.querySelector<HTMLElement>('[data-drop-capa]')!;
+  const capaInput = form.querySelector<HTMLInputElement>('[data-capa-input]')!;
+  const capaPreview = form.querySelector<HTMLElement>('[data-capa-preview]')!;
+  let capaArquivo: File | null = null;
+  const usarCapa = (f?: File) => {
+    if (!f) return;
+    const erro = validarArquivo(f);
+    if (erro) return toast(erro, 'erro');
+    capaArquivo = f;
+    capaPreview.innerHTML = '';
+    const img = new Image();
+    img.src = URL.createObjectURL(f);
+    img.alt = '';
+    capaPreview.append(img);
+    drop.setAttribute('data-tem', '');
+    limparErro('capa');
+    marcarSujo();
+  };
+  capaInput.addEventListener('change', () => usarCapa(capaInput.files?.[0]));
+  ['dragenter', 'dragover'].forEach((ev) =>
+    drop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      drop.setAttribute('data-arrastando', '');
+    }),
+  );
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, () => drop.removeAttribute('data-arrastando')));
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    usarCapa(e.dataTransfer?.files?.[0]);
+  });
+
+  // ---------- Galeria ----------
+  const lista = form.querySelector<HTMLUListElement>('[data-galeria]')!;
+  const addTile = lista.querySelector<HTMLElement>('[data-fixo]')!;
+  const tpl = form.querySelector<HTMLTemplateElement>('[data-tile-tpl]')!;
+  const galInput = form.querySelector<HTMLInputElement>('[data-gal-input]')!;
+  const contador = form.querySelector<HTMLElement>('[data-gal-count]')!;
+  const novos = new Map<HTMLElement, File>();
+  const contar = () => {
+    const n = lista.querySelectorAll('.pn-tile').length;
+    contador.textContent = n ? `${n} foto${n > 1 ? 's' : ''}` : '';
+  };
+  const adicionar = (files: FileList | File[]) => {
+    const erros: string[] = [];
+    Array.from(files).forEach((f) => {
+      const erro = validarArquivo(f);
+      if (erro) return erros.push(erro);
+      const li = tpl.content.firstElementChild!.cloneNode(true) as HTMLElement;
+      li.querySelector('img')!.src = URL.createObjectURL(f);
+      novos.set(li, f);
+      addTile.before(li);
+    });
+    if (erros.length) toast(erros[0], 'erro');
+    contar();
+    marcarSujo();
+  };
+  galInput.addEventListener('change', () => {
+    if (galInput.files) adicionar(galInput.files);
+    galInput.value = '';
+  });
+  lista.addEventListener('click', (e) => {
+    const x = (e.target as HTMLElement).closest('[data-remover]');
+    if (!x) return;
+    const li = x.closest('li') as HTMLElement;
+    novos.delete(li);
+    li.remove();
+    contar();
+    marcarSujo();
+  });
+  const galZona = form.querySelector<HTMLElement>('[data-drop-galeria]')!;
+  ['dragenter', 'dragover'].forEach((ev) =>
+    galZona.addEventListener(ev, (e) => {
+      if (!(e as DragEvent).dataTransfer?.types.includes('Files')) return;
+      e.preventDefault();
+      galZona.setAttribute('data-arrastando', '');
+    }),
+  );
+  ['dragleave', 'drop'].forEach((ev) => galZona.addEventListener(ev, () => galZona.removeAttribute('data-arrastando')));
+  galZona.addEventListener('drop', (e) => {
+    if (!e.dataTransfer?.files.length) return;
+    e.preventDefault();
+    adicionar(e.dataTransfer.files);
+  });
+  Sortable.create(lista, {
+    draggable: '.pn-tile',
+    handle: '.pn-tile-img',
+    filter: '[data-remover]',
+    preventOnFilter: false,
+    animation: 220,
+    ghostClass: 'is-ghost',
+    onEnd: (e) => e.oldIndex !== e.newIndex && marcarSujo(),
+  });
+  contar();
+
+  // ---------- Erros por campo ----------
+  function limparErro(campo: string) {
+    const f = form.querySelector<HTMLElement>(`[data-campo="${campo}"]`);
+    f?.removeAttribute('data-erro');
+  }
+  function mostrarErros(erros: Record<string, string>) {
+    form.querySelectorAll('[data-campo]').forEach((f) => f.removeAttribute('data-erro'));
+    let primeiro: HTMLElement | null = null;
+    for (const [campo, msg] of Object.entries(erros)) {
+      const f = form.querySelector<HTMLElement>(`[data-campo="${campo}"]`);
+      if (!f) continue;
+      f.setAttribute('data-erro', '');
+      f.querySelector('[data-erro-msg]')!.textContent = msg;
+      primeiro ??= f;
+    }
+    if (primeiro) {
+      primeiro.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      primeiro.querySelector<HTMLElement>('input:not([type=file]), [data-drop-capa] label')?.focus({ preventScroll: true });
+    }
+  }
+  form.querySelectorAll<HTMLInputElement>('[data-campo] input').forEach((i) =>
+    i.addEventListener('input', () => limparErro(i.closest<HTMLElement>('[data-campo]')!.dataset.campo!)),
+  );
+
+  // ---------- Salvar ----------
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value ?? '';
+    const marcado = (n: string) => form.querySelector<HTMLInputElement>(`input[name="${n}"]:checked`)?.value;
+
+    // Validação rápida antes de enviar
+    const erros: Record<string, string> = {};
+    if (!v('titulo').trim()) erros.titulo = 'Dê um título ao projeto';
+    if (!v('materiais').trim()) erros.materiais = 'Informe os materiais usados';
+    if (!drop.hasAttribute('data-tem')) erros.capa = 'Escolha uma foto de capa';
+    if (!v('capaAlt').trim()) erros.capaAlt = 'Descreva a foto de capa em uma frase';
+    if (Object.keys(erros).length) return mostrarErros(erros);
+
+    const fd = new FormData();
+    if (capaArquivo) fd.append('capa', capaArquivo);
+    const galeria = Array.from(lista.querySelectorAll<HTMLElement>('.pn-tile')).map((li, i) => {
+      const alt = li.querySelector<HTMLInputElement>('.pn-tile-alt')!.value;
+      const f = novos.get(li);
+      if (f) {
+        fd.append(`foto-${i}`, f);
+        return { arquivo: `foto-${i}`, alt };
+      }
+      return { src: li.dataset.src, alt };
+    });
+    fd.append(
+      'dados',
+      JSON.stringify({
+        id,
+        titulo: v('titulo'),
+        materiais: v('materiais'),
+        ambiente: marcado('ambiente'),
+        local: v('local'),
+        capaAlt: v('capaAlt'),
+        descricao: v('descricao'),
+        prioridade: marcado('prioridade'),
+        galeria,
+      }),
+    );
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="pn-spin" aria-hidden="true"></span> Salvando…';
+    try {
+      const r = await fetch('/api/painel/projeto', { method: 'POST', body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 422 && j.erros) {
+        mostrarErros(j.erros);
+        throw new Error(j.erro);
+      }
+      if (!r.ok) throw new Error(j.erro || 'Não foi possível salvar');
+      sujo = false;
+      location.href = `/painel?aviso=${encodeURIComponent(id ? 'Projeto salvo' : 'Projeto criado')}`;
+    } catch (err) {
+      toast((err as Error).message, 'erro');
+      btn.disabled = false;
+      btn.textContent = rotuloBtn;
+    }
+  });
+
+  // ---------- Excluir ----------
+  const dlg = document.querySelector<HTMLDialogElement>('[data-dialog-excluir]');
+  form.querySelector('[data-excluir]')?.addEventListener('click', async () => {
+    if (!dlg || !(await confirmar(dlg))) return;
+    if (await acao({ acao: 'excluir', id })) {
+      sujo = false;
+      location.href = `/painel?aviso=${encodeURIComponent('Projeto excluído')}`;
+    }
+  });
+</script>
