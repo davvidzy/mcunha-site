@@ -1,0 +1,259 @@
+---
+import { Picture } from 'astro:assets';
+import showroom from '../assets/img/showroom.webp';
+import { WHATSAPP_NUMBER, WHATSAPP_DISPLAY, INSTAGRAM_URL, MAPS_DIRECTIONS, whatsappLink } from '../lib/contact';
+
+const ambientes = ['Cozinha', 'Sala', 'Banheiro', 'Área gourmet', 'Escada', 'Corporativo', 'Outro'];
+const projeto = ['Sim', 'Em andamento', 'Não'];
+const perfil = ['Cliente final', 'Arquiteto ou designer', 'Outro'];
+
+const socials = [
+  { href: whatsappLink(), icon: '/svg/ic-whatsapp.svg', label: 'WhatsApp', size: 18 },
+  { href: INSTAGRAM_URL, icon: '/svg/ic-instagram.svg', label: 'Instagram', size: 18 },
+  { href: MAPS_DIRECTIONS, icon: '/svg/ic-pin.svg', label: 'Localização no mapa', size: 17 },
+];
+---
+
+<section id="showroom" class="section-y relative isolate overflow-hidden bg-cream">
+  <img src="/svg/deco-showroom.svg" alt="" aria-hidden="true" class="deco bottom-[2%] left-[-2.3%] hidden w-[clamp(140px,14.3vw,206px)] md:block" data-float="-70" />
+
+  <div class="container-x grid gap-12 lg:grid-cols-2 lg:gap-16">
+    <!-- Coluna Showroom -->
+    <div class="flex flex-col gap-8">
+      <div class="flex flex-col gap-6">
+        <h2 class="section-title" data-reveal="split">Showroom</h2>
+        <p class="section-sub" data-reveal data-delay="0.15">Veja as chapas de perto</p>
+      </div>
+
+      <div
+        class="relative aspect-[624/462] overflow-hidden rounded-[var(--radius-card)] border border-gold-400 shadow-[0_2px_15px_rgb(0_0_0/0.15)]"
+        data-reveal="clip"
+      >
+        <div data-parallax="5" class="absolute inset-x-0 -top-[6%] h-[112%]">
+          <Picture
+            src={showroom}
+            alt="Showroom da MCunha Marmoraria com mostruário de chapas na parede"
+            formats={['avif', 'webp']}
+              fallbackFormat="jpg"
+            widths={[480, 680]}
+            sizes="(min-width: 1024px) 44vw, 92vw"
+            class="size-full object-cover"
+          />
+        </div>
+      </div>
+
+      <dl class="flex flex-col gap-2 text-black" data-reveal="stagger">
+        <div class="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <dt class="text-base leading-[1.2] font-medium">WhatsApp:</dt>
+          <dd><a href={whatsappLink()} target="_blank" rel="noopener" class="text-sm underline underline-offset-2 lg:text-xs">{WHATSAPP_DISPLAY}</a></dd>
+        </div>
+        <div class="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <dt class="text-base leading-[1.2] font-medium">Horário:</dt>
+          <dd class="text-sm lg:text-xs">Segunda a sexta, 8h às 18h &nbsp;·&nbsp; Sábado, 8h às 12h</dd>
+        </div>
+        <div class="flex flex-wrap items-end gap-x-3 gap-y-1">
+          <dt class="text-base leading-[1.05] font-medium">Endereço:</dt>
+          <dd>
+            <a href={MAPS_DIRECTIONS} target="_blank" rel="noopener" class="text-sm underline underline-offset-2 lg:text-xs">
+              QI 21, Bloco E, Loja 54, Lago Sul, Brasília/DF, 71655-590
+            </a>
+          </dd>
+        </div>
+      </dl>
+
+      <div class="flex items-center justify-between gap-4 py-[14px] sm:px-6" data-reveal>
+        <a href={MAPS_DIRECTIONS} target="_blank" rel="noopener" class="link-underline inline-flex items-center gap-[10px] text-[length:var(--text-body)] text-gold-900">
+          Como chegar
+          <img src="/svg/arrow-gold.svg" alt="" width="11" height="10" class="w-[11px]" />
+        </a>
+        <ul class="flex gap-3">
+          {
+            socials.map((s) => (
+              <li>
+                <a
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={s.label}
+                  class="grid size-[42px] place-items-center rounded-full border-[0.5px] border-gold-900/25 bg-gold-50 transition-[transform,background-color] duration-300 hover:-translate-y-0.5 hover:bg-gold-100"
+                >
+                  <img src={s.icon} alt="" width={s.size} height={s.size} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+
+    <!-- Formulário de orçamento -->
+    <form
+      id="orcamento"
+      data-quote-form
+      data-phone={WHATSAPP_NUMBER}
+      class="flex scroll-mt-28 flex-col gap-[clamp(2.5rem,4.4vw,4rem)] rounded-[var(--radius-card)] border border-gold-400 bg-white px-[clamp(1.25rem,1.7vw,1.5rem)] py-[clamp(2rem,3.6vw,52px)]"
+      data-reveal
+      novalidate
+    >
+      <h2 class="text-[clamp(1.5rem,1.2rem+1vw,1.875rem)] text-navy-900 uppercase">Peça seu orçamento</h2>
+
+      <div class="flex flex-col gap-6">
+        <fieldset class="flex flex-col gap-3 py-[5px]">
+          <legend class="mb-3 text-[length:var(--text-body)] leading-6 font-medium text-gold-900">Ambiente</legend>
+          <div class="flex flex-wrap gap-[14px]">
+            {
+              ambientes.map((a, i) => (
+                <label class="chip">
+                  <input type="radio" name="ambiente" value={a} checked={i === 0} class="sr-only" />
+                  <span>{a}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <fieldset class="flex flex-col gap-3 py-[5px]">
+          <legend class="mb-3 text-[length:var(--text-body)] leading-6 font-medium text-gold-900">Você já tem projeto?</legend>
+          <div class="flex flex-wrap gap-[14px]">
+            {
+              projeto.map((p) => (
+                <label class="chip">
+                  <input type="radio" name="projeto" value={p} class="sr-only" />
+                  <span>{p}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+
+        <div class="flex flex-col gap-1">
+          <label for="nome" class="text-[length:var(--text-body)] leading-6 font-medium text-gold-900">Seu nome</label>
+          <input
+            id="nome"
+            name="nome"
+            type="text"
+            autocomplete="name"
+            required
+            placeholder="Ex: Maria Luísa"
+            class="w-full border-b-2 border-[#cdcdcd] px-4 py-3 font-nunito text-base leading-6 text-navy-950 outline-none placeholder:text-[#959595] focus:border-gold-700 aria-[invalid=true]:border-red-700"
+          />
+          <p data-error class="hidden pt-1 text-sm text-red-700">Informe seu nome para continuar.</p>
+        </div>
+
+        <fieldset class="flex flex-col gap-3 py-[5px]">
+          <legend class="mb-3 text-[length:var(--text-body)] leading-6 font-medium text-gold-900">Você é</legend>
+          <div class="flex flex-wrap gap-[14px]">
+            {
+              perfil.map((p) => (
+                <label class="chip">
+                  <input type="radio" name="perfil" value={p} class="sr-only" />
+                  <span>{p}</span>
+                </label>
+              ))
+            }
+          </div>
+        </fieldset>
+      </div>
+
+      <div class="flex flex-col items-center gap-3">
+        <button
+          type="submit"
+          class="btn w-full border-[0.25px] border-gold-500 bg-gold-700 !py-[17px] text-navy-50 before:bg-gold-900"
+        >
+          Continuar no WhatsApp
+          <img src="/svg/arrow-wpp.svg" alt="" width="14" height="13" class="w-[14px]" />
+        </button>
+        <p class="flex items-center gap-2 text-center text-xs text-stone-600">
+          <img src="/svg/ic-info.svg" alt="" width="13" height="13" class="shrink-0" />
+          Você será direcionado ao WhatsApp com a mensagem pronta
+        </p>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .chip {
+    cursor: pointer;
+  }
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border-radius: 50px;
+    border: 1px solid #787878;
+    color: #787878;
+    font-family: var(--font-nunito);
+    font-size: 16px;
+    line-height: 24px;
+    white-space: nowrap;
+    transition:
+      background-color 0.3s,
+      color 0.3s,
+      border-color 0.3s,
+      transform 0.3s var(--ease-out-expo);
+  }
+  .chip:hover span {
+    border-color: var(--color-gold-900);
+    color: var(--color-gold-900);
+  }
+  .chip input:checked + span {
+    background: var(--color-gold-900);
+    border-color: var(--color-gold-900);
+    color: #fff;
+  }
+  .chip input:focus-visible + span {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 2px;
+  }
+  .chip:active span {
+    transform: scale(0.96);
+  }
+</style>
+
+<script>
+  // Anotação do Figma: mensagem pronta
+  // “Olá! Sou [Nome], [cliente final / arquiteto]. Quero um orçamento para [ambiente] e [já tenho / estou fazendo / ainda não tenho] projeto.”
+  const form = document.querySelector<HTMLFormElement>('[data-quote-form]')!;
+  const nome = form.querySelector<HTMLInputElement>('#nome')!;
+  const error = form.querySelector<HTMLElement>('[data-error]')!;
+
+  const perfilMap: Record<string, string> = {
+    'Cliente final': 'cliente final',
+    'Arquiteto ou designer': 'arquiteto(a)/designer',
+  };
+  const projetoMap: Record<string, string> = {
+    Sim: 'já tenho',
+    'Em andamento': 'estou fazendo o',
+    Não: 'ainda não tenho',
+  };
+
+  nome.addEventListener('input', () => {
+    nome.removeAttribute('aria-invalid');
+    error.classList.add('hidden');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+    const name = String(data.get('nome') || '').trim();
+    if (!name) {
+      nome.setAttribute('aria-invalid', 'true');
+      error.classList.remove('hidden');
+      nome.focus();
+      return;
+    }
+    const ambiente = String(data.get('ambiente') || '').toLowerCase();
+    const perfil = perfilMap[String(data.get('perfil'))];
+    const projeto = projetoMap[String(data.get('projeto'))];
+
+    let msg = `Olá! Sou ${name}`;
+    if (perfil) msg += `, ${perfil}`;
+    msg += '.';
+    msg += ambiente && ambiente !== 'outro' ? ` Quero um orçamento para ${ambiente}` : ' Quero um orçamento';
+    msg += projeto ? ` e ${projeto} projeto.` : '.';
+
+    window.open(`https://wa.me/${form.dataset.phone}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+  });
+</script>

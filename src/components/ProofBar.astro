@@ -1,0 +1,43 @@
+---
+// Faixa de prova (nó 1:2571): letreiro lento e contínuo em todas as larguras.
+const items = ['Fabricação própria', '24 anos de mercado', 'Showroom no Lago Sul', '+231 Projetos concluídos'];
+---
+
+<section aria-label="Diferenciais" class="relative z-10 overflow-hidden border-y border-stone-400/30 bg-cream py-[14px]">
+  <ul class="sr-only">
+    {items.map((t) => <li>{t}</li>)}
+  </ul>
+  <div class="marquee flex w-max py-[10px] text-[clamp(1.125rem,1rem+0.3vw,1.25rem)] font-semibold text-navy-900" aria-hidden="true">
+    {
+      [0, 1].map(() => (
+        <ul class="flex shrink-0 items-center">
+          {[...items, ...items].map((t) => (
+            <li class="flex items-center gap-4 pr-[clamp(2.5rem,7vw,7rem)] whitespace-nowrap">
+              <span class="size-[6px] bg-navy-900" />
+              {t}
+            </li>
+          ))}
+        </ul>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .marquee {
+    animation: marquee 60s linear infinite;
+  }
+  .marquee:hover {
+    animation-play-state: paused;
+  }
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee {
+      animation: none;
+    }
+  }
+</style>

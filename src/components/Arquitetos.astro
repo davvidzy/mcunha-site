@@ -1,0 +1,262 @@
+---
+import { Picture } from 'astro:assets';
+import chapa from '../assets/img/garantia-chapa.jpg';
+import paginacao from '../assets/img/garantia-paginacao.jpg';
+import detalhamento from '../assets/img/garantia-detalhamento.jpg';
+import responsavel from '../assets/img/garantia-responsavel.jpg';
+import portfolio from '../assets/img/garantia-portfolio.webp';
+import { whatsappLink } from '../lib/contact';
+
+const garantias = [
+  {
+    img: chapa,
+    alt: 'Mãos segurando amostra de pedra sobre mostruário de chapas',
+    title: 'Chapa escolhida por você',
+    text: 'Selecione as chapas no nosso estoque com o seu cliente, peça por peça, e elas ficam reservadas para o seu projeto.',
+  },
+  {
+    img: paginacao,
+    alt: 'Projeto arquitetônico desenhado à mão sobre a mesa',
+    title: 'Paginação antes do corte',
+    text: 'Enviamos o plano de corte com a posição dos veios e das emendas. Nada é cortado sem o seu ok.',
+  },
+  {
+    img: detalhamento,
+    alt: 'Marmorista desbastando bloco de pedra com esmerilhadeira',
+    title: 'Detalhamento técnico na obra',
+    text: 'Medição feita por nós e detalhamento de cada peça: bordas, recortes, cubas e encaixes.',
+  },
+  {
+    img: responsavel,
+    alt: 'Responsável técnica de capacete falando ao telefone na obra',
+    title: 'Responsável do início ao fim',
+    text: 'Um contato direto com você durante toda a obra, com cronograma por etapa.',
+  },
+  {
+    img: portfolio,
+    alt: 'Balcão revestido em quartzito branco com veios marcantes',
+    title: 'Fotos para o seu portfólio',
+    text: 'Registramos o projeto instalado e enviamos as imagens para você.',
+    pos: 'object-[30%_50%]',
+  },
+];
+
+const total = String(garantias.length).padStart(2, '0');
+const ctaProjetos = whatsappLink('Olá! Sou arquiteto(a)/designer e gostaria de falar com o atendimento para projetos.');
+const ctaVisita = whatsappLink('Olá! Gostaria de agendar uma visita ao estoque de chapas.');
+---
+
+<section
+  id="arquitetos"
+  data-theme="dark"
+  class="section-y relative isolate border-t-[2.5px] border-gold-400 bg-navy-900 text-gold-50"
+  data-garantias
+>
+  <div class="container-x grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-[clamp(3rem,6vw,6rem)]">
+    <!-- Coluna fixa: título + índice das garantias (desktop) -->
+    <div class="relative">
+      <div class="flex flex-col gap-6 lg:sticky lg:top-0 lg:h-svh lg:justify-center lg:py-24">
+        <h2 class="section-title" data-reveal="split">Arquitetos<br />e designers</h2>
+        <p class="max-w-[520px] text-[length:var(--text-body)] leading-snug text-gold-50/85" data-reveal data-delay="0.15">
+          Você aprova cada etapa, da escolha da chapa à instalação. Sem surpresa na obra e sem retrabalho para o seu cliente
+        </p>
+
+        <div class="mt-4 hidden lg:block" data-reveal data-delay="0.25">
+          <p class="mb-5 text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase">
+            {garantias.length} garantias no seu projeto
+          </p>
+          <div class="relative pl-6">
+            <!-- Linha de progresso vertical -->
+            <span class="absolute top-1 bottom-1 left-0 w-px bg-gold-50/15" aria-hidden="true">
+              <span class="absolute inset-0 origin-top bg-gold-400" style="transform: scaleY(0)" data-stack-progress></span>
+            </span>
+            <ol class="flex flex-col gap-1">
+              {
+                garantias.map((g, i) => (
+                  <li>
+                    <button
+                      type="button"
+                      data-stack-goto={i}
+                      class:list={['stack-idx flex w-full items-baseline gap-4 py-2 text-left', i === 0 && 'is-active']}
+                    >
+                      <span class="w-6 shrink-0 text-xs tabular-nums">{String(i + 1).padStart(2, '0')}</span>
+                      <span class="text-[clamp(1rem,0.85rem+0.35vw,1.1875rem)] leading-snug">{g.title}</span>
+                    </button>
+                  </li>
+                ))
+              }
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Garantias: cartões empilhados no desktop, lista simples no mobile -->
+    <div id="garantias" class="scroll-mt-24">
+      <p class="mb-6 text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase lg:hidden" data-reveal>
+        {garantias.length} garantias no seu projeto
+      </p>
+      <ol data-stack-list class="stack-list flex w-full flex-col gap-6">
+        {
+          garantias.map((g, i) => (
+            <li data-stack-card class="stack-card w-full">
+              <article
+                data-stack-inner
+                class="stack-inner relative isolate flex flex-col justify-end gap-3 overflow-hidden rounded-[var(--radius-card)] border border-gold-400 p-[clamp(1.25rem,2.2vw,2rem)]"
+              >
+                <div class="absolute inset-0 -z-10">
+                  <Picture
+                    src={g.img}
+                    alt={g.alt}
+                    formats={['avif', 'webp']}
+                    fallbackFormat="jpg"
+                    widths={[480, 720, 1000, 1300]}
+                    sizes="(min-width: 1024px) 50vw, 92vw"
+                    class:list={['size-full object-cover', g.pos]}
+                  />
+                </div>
+                <div
+                  class="absolute inset-x-[-1px] bottom-[-1px] -z-10 h-[55%] bg-gradient-to-b from-gold-50/0 to-gold-50 to-60%"
+                  aria-hidden="true"
+                />
+                <div data-stack-veil class="pointer-events-none absolute inset-0 z-10 bg-navy-950 opacity-0" aria-hidden="true" />
+                <span class="absolute top-[clamp(1rem,1.8vw,1.5rem)] left-[clamp(1rem,1.8vw,1.5rem)] rounded-full bg-navy-950/70 px-3 py-1 text-xs font-semibold tabular-nums text-gold-50 backdrop-blur-sm">
+                  {String(i + 1).padStart(2, '0')} / {total}
+                </span>
+                <h3 class="font-serif text-[length:var(--text-card)] leading-[1.05] text-gold-900">{g.title}</h3>
+                <p class="max-w-[46ch] text-[length:var(--text-body)] leading-snug text-stone-700">{g.text}</p>
+              </article>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+
+  <div
+    class="container-x mt-[clamp(4rem,8.9vw,8rem)] flex flex-col items-center justify-center gap-4 text-center sm:flex-row sm:gap-6"
+    data-reveal
+  >
+    <a href={ctaProjetos} target="_blank" rel="noopener" class="btn btn-gold max-sm:!px-5 max-sm:!text-[15px]">
+      Falar com o atendimento para projetos
+      <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+    </a>
+    <span class="text-sm font-semibold text-gold-100">ou</span>
+    <a href={ctaVisita} target="_blank" rel="noopener" class="link-underline p-[14px] text-[length:var(--text-body)] text-gold-50">
+      Agendar visita ao estoque
+    </a>
+  </div>
+</section>
+
+<style>
+  .stack-inner {
+    height: clamp(420px, 115vw, 560px);
+  }
+  @media (min-width: 640px) {
+    .stack-inner {
+      height: clamp(480px, 75vw, 640px);
+    }
+  }
+
+  /* Desktop: cartões fixos no centro da tela; cada novo cartão cobre o anterior */
+  @media (min-width: 1024px) {
+    .stack-list {
+      --card-h: clamp(440px, calc(100svh - 220px), 660px);
+      --stack-top: max(96px, calc((100svh - var(--card-h)) / 2 + 24px));
+      gap: 34vh;
+      padding-bottom: 8vh;
+    }
+    .stack-card {
+      position: sticky;
+      top: var(--stack-top);
+    }
+    .stack-inner {
+      height: var(--card-h);
+      transform-origin: 50% 0%;
+    }
+  }
+
+  .stack-idx {
+    color: var(--color-gold-50);
+    opacity: 0.4;
+    transition:
+      opacity 0.4s,
+      transform 0.6s var(--ease-out-expo);
+  }
+  .stack-idx:hover {
+    opacity: 0.75;
+  }
+  .stack-idx.is-active {
+    opacity: 1;
+    transform: translateX(6px);
+  }
+  .stack-idx.is-active span:first-child {
+    color: var(--color-gold-300);
+  }
+</style>
+
+<script>
+  const root = document.querySelector<HTMLElement>('[data-garantias]');
+  const list = root?.querySelector<HTMLElement>('[data-stack-list]');
+  const bar = root?.querySelector<HTMLElement>('[data-stack-progress]');
+  const idx = Array.from(root?.querySelectorAll<HTMLButtonElement>('[data-stack-goto]') ?? []);
+  const desktop = window.matchMedia('(min-width: 1024px)');
+
+  if (root && list && bar && idx.length) {
+    const cards = Array.from(list.children) as HTMLElement[];
+    const n = cards.length;
+
+    // Geometria "natural" (sem o sticky): cada cartão chega ao topo fixo a cada `step` px de rolagem
+    const geom = () => {
+      const first = cards[0];
+      const stickyTop = parseFloat(getComputedStyle(first).top) || 0;
+      const cardH = first.offsetHeight;
+      const gap = parseFloat(getComputedStyle(list).rowGap) || 0;
+      return { stickyTop, step: cardH + gap };
+    };
+
+    let active = -1;
+    const update = () => {
+      if (!desktop.matches) return;
+      const { stickyTop, step } = geom();
+      const listTop = list.getBoundingClientRect().top; // a lista não é sticky: posição real
+      const passed = stickyTop - listTop; // quanto já rolou desde o 1º cartão fixar
+      const p = Math.min(1, Math.max(0, passed / (step * (n - 1))));
+      bar.style.transform = `scaleY(${p})`;
+      const i = Math.min(n - 1, Math.max(0, Math.round(passed / step)));
+      if (i !== active) {
+        active = i;
+        idx.forEach((b, j) => b.classList.toggle('is-active', j === i));
+      }
+    };
+
+    let ticking = false;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!ticking) {
+          ticking = true;
+          requestAnimationFrame(() => {
+            ticking = false;
+            update();
+          });
+        }
+      },
+      { passive: true },
+    );
+    window.addEventListener('resize', update);
+    update();
+
+    // Índice clicável: leva ao momento em que o cartão escolhido está à frente
+    idx.forEach((b) =>
+      b.addEventListener('click', () => {
+        const i = Number(b.dataset.stackGoto);
+        const { stickyTop, step } = geom();
+        const listDocTop = list.getBoundingClientRect().top + window.scrollY;
+        const y = listDocTop + i * step - stickyTop + 2;
+        const lenis = (window as any).__lenis;
+        lenis ? lenis.scrollTo(y, { duration: 1.2 }) : window.scrollTo({ top: y, behavior: 'smooth' });
+      }),
+    );
+  }
+</script>

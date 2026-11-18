@@ -1,0 +1,121 @@
+---
+import { Picture } from 'astro:assets';
+import cida from '../assets/img/depoimento-cida.jpg';
+import { GOOGLE_REVIEWS_URL } from '../lib/contact';
+
+// Para adicionar depoimentos, basta incluir novos objetos neste array.
+const depoimentos = [
+  {
+    name: 'Cida Almeida',
+    img: cida,
+    alt: 'Retrato de Cida Almeida sorrindo, sentada no sofá',
+    text: '“Empresa que respeita o cliente de modo geral, com excelentes profissionais. Sempre sou atendida pela melhor vendedora e agora gerente da loja, Cristina. Sempre atenciosa e detalhista. Entrega sempre no prazo, com ótimo preços e produtos de muita qualidade e beleza. Super indico.”',
+    href: GOOGLE_REVIEWS_URL,
+  },
+];
+const multi = depoimentos.length > 1;
+---
+
+<section id="depoimentos" data-theme="dark" class="section-y relative isolate overflow-hidden bg-navy-900 text-gold-50">
+  <img src="/svg/deco-depo.svg" alt="" aria-hidden="true" class="deco right-[-4%] bottom-[-6%] hidden w-[clamp(180px,22vw,315px)] md:block" data-float="-60" />
+
+  <div class="container-x flex flex-col gap-6">
+    <h2 class="section-title" data-reveal="split">Depoimentos</h2>
+    <p class="section-sub" data-reveal data-delay="0.15">O que dizem depois da instalação</p>
+  </div>
+
+  <div class="container-x mt-[clamp(2.5rem,4.4vw,4rem)]" data-carousel>
+    <div class="relative grid" aria-roledescription="carrossel" aria-label="Depoimentos de clientes">
+      {
+        depoimentos.map((d, i) => (
+          <figure
+            data-slide
+            class:list={[
+              'col-start-1 row-start-1 flex flex-col items-center lg:h-[650px] lg:flex-row',
+              i !== 0 && 'invisible opacity-0',
+            ]}
+            aria-roledescription="slide"
+            aria-label={`${i + 1} de ${depoimentos.length}`}
+            aria-hidden={i !== 0 ? 'true' : undefined}
+          >
+            <div
+              class="relative aspect-[4/5] w-full max-w-[520px] overflow-hidden rounded-[var(--radius-card)] sm:aspect-[4/3] sm:max-w-none lg:-mr-[82px] lg:aspect-auto lg:h-full lg:flex-1"
+              data-reveal="clip"
+            >
+              <Picture
+                src={d.img}
+                alt={d.alt}
+                formats={['avif', 'webp']}
+              fallbackFormat="jpg"
+                widths={[480, 720, 1000]}
+                sizes="(min-width: 1024px) 46vw, 100vw"
+                class="absolute inset-0 size-full object-cover object-[50%_25%]"
+              />
+            </div>
+
+            <div
+              class="relative z-10 -mt-20 flex w-[calc(100%-1.5rem)] flex-col gap-[clamp(1.25rem,2.2vw,2rem)] rounded-[var(--radius-card)] border border-gold-900 bg-stone-200 px-[clamp(1.25rem,2.2vw,2rem)] py-[clamp(2rem,4.4vw,4rem)] text-navy-950 shadow-[0_2px_41.5px_rgb(0_0_0/0.15)] sm:w-[88%] lg:mt-0 lg:w-auto lg:flex-1"
+              data-reveal
+              data-delay="0.2"
+            >
+              <figcaption class="font-serif text-[length:var(--text-title)] leading-none">{d.name}</figcaption>
+              <blockquote class="text-[length:var(--text-sub)] leading-[1.5] font-light">{d.text}</blockquote>
+              <a href={d.href} target="_blank" rel="noopener" class="link-underline inline-flex items-center gap-[10px] self-start text-[length:var(--text-body)] text-gold-900">
+                Ver avaliação no Google
+                <img src="/svg/arrow-gold.svg" alt="" width="11" height="10" class="w-[11px]" />
+              </a>
+            </div>
+          </figure>
+        ))
+      }
+    </div>
+
+    <div class="mt-6 flex justify-center gap-6 p-[10px]">
+      <button
+        data-prev
+        class="grid size-[44.5px] place-items-center rounded-full border-[0.25px] border-gold-50 bg-navy-800 transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-navy-950 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+        aria-label="Depoimento anterior"
+        disabled={!multi}
+      >
+        <img src="/svg/chev-left.svg" alt="" width="24" height="24" class="rotate-180" />
+      </button>
+      <button
+        data-next
+        class="grid size-[44.5px] place-items-center rounded-full border-[0.25px] border-gold-50 bg-navy-800 transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-navy-950 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
+        aria-label="Próximo depoimento"
+        disabled={!multi}
+      >
+        <img src="/svg/chev-right.svg" alt="" width="24" height="24" />
+      </button>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap } from 'gsap';
+
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+    if (slides.length < 2) return;
+    let index = 0;
+    let busy = false;
+
+    const go = (dir: 1 | -1) => {
+      if (busy) return;
+      busy = true;
+      const current = slides[index];
+      index = (index + dir + slides.length) % slides.length;
+      const next = slides[index];
+      next.classList.remove('invisible');
+      next.removeAttribute('aria-hidden');
+      current.setAttribute('aria-hidden', 'true');
+      gsap
+        .timeline({ onComplete: () => ((busy = false), current.classList.add('invisible')) })
+        .to(current, { opacity: 0, x: -40 * dir, duration: 0.5, ease: 'power2.in' })
+        .fromTo(next, { opacity: 0, x: 60 * dir }, { opacity: 1, x: 0, duration: 0.9, ease: 'expo.out' });
+    };
+
+    root.querySelector('[data-prev]')?.addEventListener('click', () => go(-1));
+    root.querySelector('[data-next]')?.addEventListener('click', () => go(1));
+  });
+</script>

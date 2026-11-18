@@ -1,0 +1,209 @@
+---
+import { Image } from 'astro:assets';
+import quartzito from '../assets/pedras/quartzite.webp';
+import marmore from '../assets/pedras/marble-2.webp';
+import granito from '../assets/pedras/granite.webp';
+import onix from '../assets/pedras/onyx.webp';
+
+const materiais = [
+  { name: 'Quartzitos', tag: 'Alta resistência', img: quartzito },
+  { name: 'Mármores', tag: 'Veios clássicos', img: marmore },
+  { name: 'Granitos', tag: 'Uso intenso', img: granito },
+  { name: 'Ônix', tag: 'Peças de destaque', img: onix },
+];
+---
+
+<section id="materiais" class="section-y relative bg-cream" data-materials>
+  <div class="container-x flex flex-col gap-6 text-navy-900">
+    <h2 class="section-title" data-reveal="split">Materiais</h2>
+    <p class="section-sub" data-reveal data-delay="0.15">A pedra certa para cada ambiente</p>
+  </div>
+
+  <div class="relative mt-[clamp(2.5rem,4.4vw,4rem)] [overflow-x:clip]">
+    <ul>
+      {
+        materiais.map((m, i) => (
+          <li class={i < materiais.length - 1 ? 'border-b border-stone-400' : ''}>
+            <a
+              href="#orcamento"
+              data-material-row={i}
+              class="material-row group relative flex items-center gap-4 overflow-hidden px-5 py-4 sm:px-[clamp(1.25rem,4.4vw,4rem)]"
+            >
+              <span class="material-fill absolute inset-0 bg-navy-900" aria-hidden="true" />
+              <!-- Toque / telas menores: miniatura da pedra sempre visível -->
+              <span class="material-thumb relative size-[88px] shrink-0 sm:size-28" aria-hidden="true">
+                <Image
+                  src={m.img}
+                  alt=""
+                  widths={[160, 240]}
+                  sizes="96px"
+                  format="webp"
+                  loading="lazy"
+                  class="size-full object-contain drop-shadow-[0_10px_12px_rgb(0_0_0/0.25)]"
+                />
+              </span>
+              <span class="material-text relative flex min-w-0 flex-1 flex-col gap-1">
+                <span class="material-tag truncate text-xs font-semibold tracking-[0.14em] text-gold-700 uppercase transition-colors duration-500 group-hover:text-gold-300">
+                  {m.tag}
+                </span>
+                <span
+                  class="material-name font-serif text-[length:var(--text-title)] leading-none text-gold-900 transition-colors duration-500 group-hover:text-gold-50"
+                  data-reveal="split"
+                >
+                  {m.name}
+                </span>
+              </span>
+              <img
+                src="/svg/arrow-dark.svg"
+                alt=""
+                width="16"
+                height="15"
+                class="material-arrow relative w-5 shrink-0"
+              />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!-- Prévia da pedra: aparece do meio para a direita, acompanhando a linha em hover (só com mouse) -->
+    <div
+      class="stone-preview pointer-events-none absolute top-0 left-0 z-10 hidden aspect-square w-[clamp(340px,30vw,480px)] lg:[@media(hover:hover)]:block"
+      data-stone-preview
+      aria-hidden="true"
+    >
+      {
+        materiais.map((m, i) => (
+          <Image
+            src={m.img}
+            alt=""
+            widths={[480, 960]}
+            sizes="480px"
+            format="webp"
+            loading="lazy"
+            data-stone={i}
+            class="stone-img absolute inset-0 size-full object-contain drop-shadow-[0_24px_30px_rgb(0_0_0/0.35)]"
+          />
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .material-fill {
+    transform: scaleY(0);
+    transform-origin: bottom;
+    transition: transform 0.7s var(--ease-out-expo);
+  }
+  .material-row:hover .material-fill,
+  .material-row:focus-visible .material-fill {
+    transform: scaleY(1);
+    transform-origin: top;
+  }
+  .material-row:hover .material-name {
+    font-style: italic;
+  }
+  /* Toque / telas menores: seta discreta sempre visível (indica que a linha é clicável) */
+  .material-arrow {
+    opacity: 0.7;
+    transition: filter 0.5s;
+  }
+  .material-row:hover .material-arrow {
+    filter: invert(1);
+    opacity: 1;
+  }
+  .material-thumb {
+    margin-block: -8px;
+  }
+
+  /* Desktop com mouse: nomes centralizados, prévia grande da pedra no hover */
+  @media (hover: hover) and (min-width: 1024px) {
+    .material-row {
+      justify-content: center;
+      padding-block: clamp(1.75rem, 2.9vw, 42px);
+    }
+    .material-thumb,
+    .material-tag {
+      display: none;
+    }
+    .material-text {
+      flex: none;
+      align-items: center;
+    }
+    .material-arrow {
+      position: absolute;
+      right: clamp(1.25rem, 4.4vw, 4rem);
+      opacity: 0;
+      transform: translateX(-16px);
+      transition:
+        opacity 0.5s,
+        filter 0.5s,
+        transform 0.7s var(--ease-out-expo);
+    }
+    .material-row:hover .material-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .stone-img {
+    opacity: 0;
+    transform: scale(0.6) rotate(-14deg);
+    transition:
+      opacity 0.45s,
+      transform 0.9s var(--ease-out-expo);
+  }
+  .stone-img.is-active {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+</style>
+
+<script>
+  import { gsap } from 'gsap';
+
+  const root = document.querySelector<HTMLElement>('[data-materials]');
+  const preview = root?.querySelector<HTMLElement>('[data-stone-preview]');
+  if (root && preview && window.matchMedia('(hover: hover) and (min-width: 1024px)').matches) {
+    const imgs = Array.from(preview.querySelectorAll<HTMLElement>('[data-stone]'));
+    const wrap = preview.parentElement!;
+    const moveY = gsap.quickTo(preview, 'y', { duration: 0.7, ease: 'expo.out' });
+    const moveX = gsap.quickTo(preview, 'x', { duration: 0.9, ease: 'expo.out' });
+    const rot = gsap.quickTo(preview, 'rotate', { duration: 0.9, ease: 'expo.out' });
+    let first = true;
+    let baseX = 0;
+
+    root.querySelectorAll<HTMLElement>('[data-material-row]').forEach((row) => {
+      const i = Number(row.dataset.materialRow);
+      const name = row.querySelector<HTMLElement>('.material-name')!;
+      row.addEventListener('mouseenter', () => {
+        const r = row.getBoundingClientRect();
+        const w = wrap.getBoundingClientRect();
+        const n = name.getBoundingClientRect();
+        // Pedra à esquerda do nome, com respiro
+        const gap = Math.max(48, w.width * 0.05);
+        baseX = Math.max(16, n.left - w.left - gap - preview.offsetWidth);
+        const y = r.top - w.top + r.height / 2 - preview.offsetHeight / 2;
+        if (first) {
+          gsap.set(preview, { y, x: baseX });
+          first = false;
+        }
+        moveY(y);
+        moveX(baseX);
+        imgs.forEach((img, j) => img.classList.toggle('is-active', j === i));
+      });
+      // Leve deslocamento seguindo o mouse
+      row.addEventListener('mousemove', (e) => {
+        const r = row.getBoundingClientRect();
+        const dx = (e.clientX - r.left) / r.width - 0.5;
+        moveX(baseX + dx * 40);
+        rot(dx * 8);
+      });
+    });
+    wrap.addEventListener('mouseleave', () => {
+      imgs.forEach((img) => img.classList.remove('is-active'));
+      first = true;
+    });
+  }
+</script>

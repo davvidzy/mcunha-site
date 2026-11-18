@@ -1,0 +1,96 @@
+---
+import { Picture } from 'astro:assets';
+import fachada from '../assets/img/hero-fachada.webp';
+import banheiro from '../assets/img/hero-banheiro.webp';
+---
+
+<section
+  id="top"
+  data-hero
+  class="relative isolate overflow-hidden bg-cream pt-[64px] lg:pt-[76px]"
+>
+  <img src="/svg/deco-hero.svg" alt="" aria-hidden="true" class="deco bottom-[-4%] left-[-2%] w-[clamp(140px,17vw,249px)]" data-float="-60" />
+
+  <div
+    class="mx-auto grid max-w-[1440px] items-center gap-14 px-[clamp(1.25rem,5.8vw,84px)] pt-10 pb-20 lg:min-h-[min(calc(100svh-76px),952px)] lg:grid-cols-2 lg:gap-8 lg:py-16"
+  >
+    <!-- Texto -->
+    <div class="relative z-10 flex flex-col items-start gap-6 sm:gap-8">
+      <h1 data-hero-title class="hero-init font-serif text-[length:var(--text-display)] leading-[1.0] text-navy-900">
+        Pedra natural,<br />
+        <em class="italic">sob medida.</em>
+      </h1>
+      <p data-hero-fade class="hero-init max-w-[552px] text-[length:var(--text-body)] leading-snug text-navy-900">
+        Mármores, granitos e quartzitos do projeto à instalação, com <span class="max-sm:hidden">produção própria e </span>showroom no Lago Sul
+      </p>
+      <div data-hero-fade class="hero-init flex items-center gap-2 sm:gap-6">
+        <a href="#projetos" class="btn btn-gold max-sm:!px-5 max-sm:!text-[15px]">
+          Ver projetos
+          <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+        </a>
+        <a href="#orcamento" class="link-underline p-[14px] text-[15px] whitespace-nowrap text-navy-950 sm:text-base">Solicitar Orçamento</a>
+      </div>
+    </div>
+
+    <!-- Composição de imagens (proporções do frame 1:2558, em % para escalar sem quebrar) -->
+    <div class="relative mx-auto w-full max-w-[566px] lg:justify-self-center">
+      <div class="relative aspect-[565.74/667.8] w-[94%] sm:w-full">
+        <!-- Imagem principal com o recorte (Subtract do Figma) onde a menor se encaixa, com margem -->
+        <div class="absolute top-0 left-0 h-[89.85%] w-[84.85%] drop-shadow-[0_2px_18px_rgb(0_0_0/0.12)]">
+        <div
+          data-hero-main
+          class="hero-init hero-mask absolute inset-0 overflow-hidden rounded-[var(--radius-card)]"
+        >
+          <div data-hero-main-img class="absolute inset-x-0 -top-[6%] h-[112%]">
+            <Picture
+              src={fachada}
+              alt="Fachada residencial com pórtico revestido em pedra natural e escada em travertino"
+              formats={['avif', 'webp']}
+              fallbackFormat="jpg"
+              widths={[480, 720, 960, 1080]}
+              sizes="(min-width: 1024px) 480px, 85vw"
+              loading="eager"
+              fetchpriority="high"
+              class="size-full object-cover"
+            />
+          </div>
+        </div>
+        </div>
+
+        <!-- Imagem menor: encaixada no recorte da principal -->
+        <div
+          data-hero-small
+          class="hero-init absolute top-[60.95%] left-[58.57%] w-[41.79%]"
+          style="transform: rotate(2.7deg)"
+        >
+          <div
+            class="m-[2.2%] aspect-square overflow-hidden rounded-[25px] shadow-[-2px_2px_36.8px_rgb(0_0_0/0.15)]"
+          >
+            <Picture
+              src={banheiro}
+              alt="Banheiro com bancada e cuba esculpida em mármore"
+              formats={['avif', 'webp']}
+              fallbackFormat="jpg"
+              widths={[240, 400, 480]}
+              sizes="(min-width: 1024px) 236px, 40vw"
+              loading="eager"
+              class="size-full object-cover object-top"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Recorte: quadrado arredondado girado 2.7°, 12px maior que a imagem menor (226px), no sistema 480×600 */
+  .hero-mask {
+    mask-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 480 600' preserveAspectRatio='none'><defs><mask id='m'><rect width='480' height='600' fill='white'/><rect x='324.54' y='400.2' width='250' height='250' rx='37' fill='black' transform='rotate(2.7 449.54 525.2)'/></mask></defs><rect width='480' height='600' fill='black' mask='url(%23m)'/></svg>");
+    mask-size: 100% 100%;
+    mask-repeat: no-repeat;
+  }
+  :global(html.js-motion) .hero-init {
+    opacity: 0;
+  }
+</style>

@@ -1,0 +1,308 @@
+---
+// Textos aprovados pelo cliente. Itens marcados com TODO ainda precisam de confirmação da MCunha
+// (as notas entre colchetes do roteiro ficam aqui, fora da página).
+type Item = { q: string; a: string; link?: { label: string; href: string } };
+
+const grupos: { id: string; label: string; intro?: string; itens: Item[] }[] = [
+  {
+    id: 'cliente',
+    label: 'Cliente final',
+    itens: [
+      {
+        q: 'Preciso ter o projeto pronto para pedir orçamento?',
+        a: 'Não. Com fotos do ambiente e medidas aproximadas, já passamos uma estimativa. O valor final sai depois da medição na obra.',
+      },
+      {
+        q: 'Qual pedra é melhor para a bancada da cozinha?',
+        a: 'Granito e quartzito são os mais indicados, porque resistem bem a calor, riscos e manchas. O mármore também pode ser usado, mas marca com ácidos como limão e vinagre.',
+        link: { label: 'Comparar materiais', href: '#materiais' },
+      },
+      {
+        // TODO: confirmar a política de reserva
+        q: 'Posso escolher a chapa exata que vai para a minha obra?',
+        a: 'Sim. Você escolhe a chapa no nosso estoque, e ela fica reservada para o seu projeto.',
+      },
+      {
+        q: 'A pedra instalada vai ser igual à da foto?',
+        a: 'Pedra natural nunca se repete: cor e veios mudam de uma chapa para outra, até dentro do mesmo tipo. Por isso recomendamos escolher a chapa pessoalmente.',
+      },
+      {
+        // TODO: confirmar se a instalação é própria
+        q: 'Vocês fazem a medição e a instalação?',
+        a: 'Sim. Nossa equipe mede na obra, produz as peças e faz a instalação.',
+      },
+      {
+        // TODO: preencher o prazo médio
+        q: 'Qual é o prazo de entrega?',
+        a: 'Em média, [X] a [Y] dias úteis depois da medição e da aprovação, conforme o material e a complexidade das peças.',
+      },
+      {
+        // TODO: confirmar se atendem o Entorno
+        q: 'Vocês atendem fora do Lago Sul?',
+        a: 'Atendemos todo o Distrito Federal.',
+      },
+      {
+        q: 'Como cuidar da pedra no dia a dia?',
+        a: 'Limpe com detergente neutro e pano macio, e seque líquidos derramados logo. Evite produtos ácidos, abrasivos e água sanitária. A impermeabilização deve ser refeita periodicamente, com mais frequência no mármore.',
+      },
+    ],
+  },
+  {
+    id: 'arquitetos',
+    label: 'Arquitetos e designers',
+    // Ordem da obra: especificação → seleção → medição → execução
+    itens: [
+      {
+        // TODO: confirmar os formatos aceitos e o e-mail
+        q: 'Em que formato envio o projeto?',
+        a: 'DWG ou PDF, com cotas e a especificação das peças. Você pode enviar pelo WhatsApp ou por [e-mail].',
+      },
+      {
+        // TODO: confirmar
+        q: 'Vocês fornecem amostras para apresentar ao cliente?',
+        a: 'Sim. Separamos amostras dos materiais especificados para você levar à reunião com o cliente.',
+      },
+      {
+        // TODO: confirmar a política de reserva
+        q: 'Posso escolher as chapas no estoque com o meu cliente?',
+        a: 'Sim. Agende uma visita, e as chapas escolhidas ficam reservadas para o projeto.',
+      },
+      {
+        q: 'Em que fase da obra a medição deve ser feita?',
+        a: 'Com paredes e contrapiso prontos, marcenaria ou bases instaladas e os modelos de cubas e metais definidos. Medir antes disso gera retrabalho.',
+      },
+      {
+        // Repete a garantia "Paginação antes do corte" de propósito: se a garantia sair do site, esta pergunta sai junto.
+        q: 'Vocês enviam a paginação para aprovação antes do corte?',
+        a: 'Sim. Enviamos o plano de corte com a posição dos veios e das emendas, e só cortamos depois da sua aprovação.',
+      },
+      {
+        q: 'Fazem o detalhamento técnico das peças?',
+        a: 'Sim. Detalhamos bordas, recortes, rebaixos, cubas esculpidas e encaixes a partir do seu projeto.',
+      },
+      {
+        // TODO: confirmar se trabalham com lâminas e quais espessuras
+        q: 'Trabalham com lâminas e grandes formatos?',
+        a: 'Sim, com lâminas ultracompactas de [X] a [Y] mm. Elas exigem equipamento de corte específico, então informe no início do projeto.',
+      },
+      {
+        // TODO: confirmar
+        q: 'Conseguem entregar por etapas em obras com cronograma apertado?',
+        a: 'Sim. Combinamos um cronograma por ambiente, alinhado com as outras frentes da obra.',
+      },
+    ],
+  },
+];
+---
+
+<section
+  id="faq"
+  data-theme="dark"
+  class="section-y relative border-b-[2.5px] border-gold-400 bg-navy-900 text-gold-50"
+  data-faq
+>
+  <div class="container-x flex flex-col gap-6">
+    <h2 class="section-title" data-reveal="split">Dúvidas frequentes</h2>
+    <p class="section-sub" data-reveal data-delay="0.15">Tire suas dúvidas antes de pedir seu orçamento</p>
+  </div>
+
+  <div class="container-x mt-8" data-reveal>
+    <div role="tablist" aria-label="Público" class="flex flex-wrap gap-3">
+      {
+        grupos.map((g, i) => (
+          <button
+            role="tab"
+            id={`tab-${g.id}`}
+            aria-controls={`panel-${g.id}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-tab={g.id}
+            class="faq-tab flex items-center justify-center gap-[10px] rounded-full border border-transparent bg-white/5 px-[clamp(1.25rem,2.8vw,40px)] py-[14px] text-[clamp(1rem,0.9rem+0.3vw,1.125rem)] text-navy-50 transition-colors duration-300 hover:bg-white/10"
+          >
+            <img src="/svg/check.svg" alt="" width="16" height="16" class="faq-check size-4" />
+            {g.label}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="container-x py-6">
+    {
+      grupos.map((g, gi) => (
+        <div
+          role="tabpanel"
+          id={`panel-${g.id}`}
+          aria-labelledby={`tab-${g.id}`}
+          data-panel={g.id}
+          hidden={gi !== 0}
+          class="flex flex-col gap-[clamp(0.75rem,1.7vw,1.5rem)] pt-6"
+        >
+          {g.itens.map((it, i) => {
+            const open = false; // todas fechadas por padrão
+            const id = `faq-${g.id}-${i}`;
+            return (
+              <div
+                class="faq-item rounded-[var(--radius-card)] border bg-white/5 transition-[border-color] duration-300"
+                data-open={open ? 'true' : 'false'}
+                data-reveal={gi === 0 ? '' : undefined}
+              >
+                <h3>
+                  <button
+                    class="faq-q flex w-full items-center justify-between gap-4 p-[clamp(1rem,1.7vw,1.5rem)] text-left text-[15px] font-semibold sm:gap-6 sm:text-[length:var(--text-sub)]"
+                    aria-expanded={open ? 'true' : 'false'}
+                    aria-controls={`${id}-a`}
+                    id={`${id}-q`}
+                  >
+                    <span class="faq-q-text min-w-0">{it.q}</span>
+                    <span class="relative size-6 shrink-0 sm:size-8" aria-hidden="true">
+                      <img src="/svg/plus.svg" alt="" width="32" height="32" class="faq-plus absolute inset-0" />
+                      <img src="/svg/close.svg" alt="" width="32" height="32" class="faq-close absolute inset-0" />
+                    </span>
+                  </button>
+                </h3>
+                <div class="faq-a grid" id={`${id}-a`} role="region" aria-labelledby={`${id}-q`}>
+                  <div class="overflow-hidden">
+                    <p class="max-w-[62ch] px-[clamp(1.125rem,1.7vw,1.5rem)] pb-[clamp(1.25rem,2.2vw,2rem)] text-[clamp(1rem,0.95rem+0.2vw,1.125rem)] leading-relaxed text-stone-100">
+                      {it.a}
+                      {it.link && (
+                        <>
+                          {' '}
+                          <a href={it.link.href} class="link-underline whitespace-nowrap text-gold-300">
+                            {it.link.label} →
+                          </a>
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .faq-tab[aria-selected='true'] {
+    background: var(--color-gold-50);
+    border-color: var(--color-gold-400);
+    color: var(--color-navy-950);
+  }
+  .faq-check {
+    display: none;
+  }
+  .faq-tab[aria-selected='true'] .faq-check {
+    display: block;
+  }
+
+  .faq-item {
+    border-color: var(--color-stone-400);
+  }
+  .faq-item .faq-q {
+    color: var(--color-stone-400);
+    transition: color 0.3s;
+  }
+  .faq-item:hover .faq-q {
+    color: var(--color-stone-100);
+  }
+  .faq-item[data-open='true'] {
+    border-color: #fff;
+  }
+  .faq-item[data-open='true'] .faq-q {
+    color: #fff;
+  }
+
+  /* Mobile: pergunta em uma linha quando fechada; abre por inteiro ao expandir */
+  @media (max-width: 639px) {
+    .faq-item[data-open='false'] .faq-q-text {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+  }
+
+  .faq-a {
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.6s var(--ease-out-expo);
+  }
+  .faq-item[data-open='true'] .faq-a {
+    grid-template-rows: 1fr;
+  }
+  .faq-a p {
+    opacity: 0;
+    transform: translateY(-8px);
+    transition:
+      opacity 0.4s,
+      transform 0.6s var(--ease-out-expo);
+  }
+  .faq-item[data-open='true'] .faq-a p {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0.1s;
+  }
+
+  .faq-plus,
+  .faq-close {
+    transition:
+      opacity 0.3s,
+      transform 0.5s var(--ease-out-expo);
+  }
+  .faq-close {
+    opacity: 0;
+    transform: rotate(-90deg);
+  }
+  .faq-item[data-open='true'] .faq-plus {
+    opacity: 0;
+    transform: rotate(90deg);
+  }
+  .faq-item[data-open='true'] .faq-close {
+    opacity: 1;
+    transform: none;
+  }
+</style>
+
+<script>
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  const root = document.querySelector<HTMLElement>('[data-faq]')!;
+
+  // Acordeão (um aberto por vez)
+  root.querySelectorAll<HTMLButtonElement>('.faq-q').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest<HTMLElement>('.faq-item')!;
+      const willOpen = item.dataset.open !== 'true';
+      item.parentElement!.querySelectorAll<HTMLElement>('.faq-item').forEach((el) => {
+        el.dataset.open = 'false';
+        el.querySelector('.faq-q')!.setAttribute('aria-expanded', 'false');
+      });
+      item.dataset.open = String(willOpen);
+      btn.setAttribute('aria-expanded', String(willOpen));
+      setTimeout(() => ScrollTrigger.refresh(), 650);
+    });
+  });
+
+  // Abas
+  const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+  const select = (tab: HTMLButtonElement) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = root.querySelector<HTMLElement>(`[data-panel="${t.dataset.tab}"]`)!;
+      panel.hidden = !on;
+    });
+    ScrollTrigger.refresh();
+  };
+  tabs.forEach((t, i) => {
+    t.addEventListener('click', () => select(t));
+    t.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length];
+      next.focus();
+      select(next);
+    });
+  });
+</script>

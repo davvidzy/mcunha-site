@@ -1,0 +1,184 @@
+@import 'tailwindcss';
+
+/* Tokens extraídos das variáveis do Figma */
+@theme {
+  --color-cream: #f7f5f1; /* color/bg/inverse */
+  --color-navy-50: #eef2f7;
+  --color-navy-800: #132743;
+  --color-navy-900: #0d1c31;
+  --color-navy-950: #08111f;
+  --color-gold-50: #fbf6e8;
+  --color-gold-100: #f5eaca;
+  --color-gold-300: #e1c064;
+  --color-gold-400: #d4aa3a;
+  --color-gold-500: #b98f2c;
+  --color-gold-700: #5f4615;
+  --color-gold-900: #33270e;
+  --color-stone-100: #efebe4;
+  --color-stone-200: #e2dcd2;
+  --color-stone-400: #a39a8c;
+  --color-stone-600: #5e574d;
+  --color-stone-700: #47413a;
+
+  --font-serif: 'Newsreader', Georgia, serif;
+  --font-sans: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-nunito: 'Nunito', 'Hanken Grotesk', system-ui, sans-serif;
+
+  --radius-card: 25px;
+
+  /* Tipografia fluida: valor do Figma (1440px) como teto */
+  --text-display: clamp(2.75rem, 1.6rem + 3.6vw, 4rem); /* 64 */
+  --text-title: clamp(2.125rem, 1.5rem + 1.9vw, 3rem); /* 48 */
+  --text-card: clamp(1.75rem, 1.2rem + 1.6vw, 2.75rem); /* 44 */
+  --text-sub: clamp(1.125rem, 0.95rem + 0.6vw, 1.5rem); /* 24 */
+  --text-body: clamp(1rem, 0.92rem + 0.3vw, 1.25rem); /* 20 */
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    overflow-x: clip;
+    background: var(--color-cream);
+    color: var(--color-navy-900);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    font-family: var(--font-sans);
+    overflow-x: clip;
+  }
+  ::selection {
+    background: var(--color-gold-300);
+    color: var(--color-navy-950);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-gold-400);
+    outline-offset: 3px;
+  }
+  /* Lenis */
+  html.lenis,
+  html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+}
+
+@layer components {
+  .container-x {
+    width: 100%;
+    max-width: 1440px;
+    margin-inline: auto;
+    padding-inline: clamp(1.25rem, 4.4vw, 4rem); /* 64px no desktop */
+  }
+  .section-y {
+    padding-block: clamp(5rem, 8.9vw, 8rem); /* 128px */
+  }
+
+  /* Botões */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 88px;
+    font-weight: 600;
+    line-height: 1.3;
+    font-size: var(--text-body);
+    white-space: nowrap;
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform 0.5s var(--ease-out-expo),
+      box-shadow 0.5s var(--ease-out-expo),
+      color 0.4s;
+  }
+  .btn img {
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  .btn:hover img {
+    transform: translateX(4px);
+  }
+  .btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    transform: translateY(101%);
+    transition: transform 0.55s var(--ease-out-expo);
+  }
+  .btn:hover::before {
+    transform: translateY(0);
+  }
+  .btn-gold {
+    background: var(--color-gold-300);
+    color: var(--color-navy-950);
+    border: 0.25px solid var(--color-navy-950);
+  }
+  .btn-gold::before {
+    background: var(--color-gold-100);
+  }
+  .btn-gold:hover {
+    box-shadow: 0 10px 30px -12px rgb(212 170 58 / 0.7);
+  }
+  .btn-outline-light {
+    color: var(--color-gold-50);
+    border: 0.25px solid var(--color-gold-50);
+  }
+  .btn-outline-light::before {
+    background: rgb(251 246 232 / 0.1);
+  }
+
+  .link-underline {
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-thickness: from-font;
+    text-underline-offset: 4px;
+    transition: text-underline-offset 0.3s, opacity 0.3s;
+  }
+  .link-underline:hover {
+    text-underline-offset: 7px;
+  }
+
+  .section-title {
+    font-family: var(--font-serif);
+    font-size: var(--text-title);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+  .section-sub {
+    font-size: var(--text-sub);
+  }
+
+  .deco {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    z-index: 0;
+  }
+}
+
+/* Estado inicial das animações (só quando JS + motion estão ativos) */
+html.js-motion [data-reveal] {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

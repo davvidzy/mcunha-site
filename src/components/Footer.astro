@@ -1,0 +1,66 @@
+---
+import { INSTAGRAM_URL, MAPS_DIRECTIONS, whatsappLink } from '../lib/contact';
+
+const word = 'MCUNHA'.split('');
+---
+
+<footer data-theme="dark" class="relative isolate overflow-hidden bg-navy-900 text-gold-50">
+  <div class="container-x relative pt-[clamp(6rem,14.4vw,208px)]">
+    <img src="/svg/deco-footer-l.svg" alt="" aria-hidden="true" class="deco top-[62%] left-[-6%] hidden w-[clamp(180px,17.8vw,256px)] -rotate-[4.88deg] md:block" data-float="-50" />
+    <img src="/svg/deco-footer-r.svg" alt="" aria-hidden="true" class="deco top-[24%] right-[-4%] hidden w-[clamp(180px,18.3vw,264px)] rotate-[8.13deg] md:block" data-float="-80" />
+
+    <div class="relative z-10 grid gap-12 lg:grid-cols-2 lg:gap-0">
+      <div class="flex flex-col items-start gap-[clamp(2rem,4.4vw,4rem)]">
+        <p class="font-serif text-[length:var(--text-display)] leading-none" data-reveal="split">
+          Vamos começar<br />pela pedra.
+        </p>
+        <div class="flex flex-wrap gap-4 sm:gap-6" data-reveal data-delay="0.2">
+          <a href={MAPS_DIRECTIONS} target="_blank" rel="noopener" class="btn btn-gold">
+            Como chegar
+            <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+          </a>
+          <a href={whatsappLink()} target="_blank" rel="noopener" class="btn btn-outline-light">
+            Whatsapp
+            <img src="/svg/arrow-light.svg" alt="" width="14" height="13" class="w-[14px]" />
+          </a>
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-8 lg:items-end lg:gap-16">
+        <ul class="flex gap-2 text-[length:var(--text-body)] font-semibold lg:flex-col lg:items-end">
+          <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener" class="link-underline inline-block py-[14px] pr-6 lg:px-6">Instagram</a></li>
+          <li><a href="#faq" class="link-underline inline-block py-[14px] lg:px-6">Dúvidas</a></li>
+        </ul>
+
+        <!-- Anotação do Figma: mapa do Google incorporado -->
+        <div class="h-[clamp(280px,26vw,377px)] w-full overflow-hidden rounded-[var(--radius-card)] border-2 border-gold-400" data-reveal>
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3838.0392151630817!2d-47.85565102392719!3d-15.854536124441257!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x935a23102ec7404f%3A0x6064b90ac9c06329!2sMCunha%20Marmoraria!5e0!3m2!1spt-BR!2sbr!4v1794946227037!5m2!1spt-BR!2sbr"
+            title="Mapa: MCunha Marmoraria no Lago Sul"
+            class="size-full border-0"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"></iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Palavra gigante + linha de créditos em largura total, com pequena margem lateral -->
+  <div class="relative z-10 mt-[clamp(5rem,14.4vw,208px)] px-[clamp(0.75rem,1.6vw,1.5rem)] [container-type:inline-size]">
+    <p
+      data-bigword
+      aria-hidden="true"
+      class="flex justify-between overflow-hidden text-[24.8cqi] leading-[0.89] font-black tracking-[-0.06em] whitespace-nowrap select-none"
+    >
+      {word.map((l) => <span class="inline-block">{l}</span>)}
+    </p>
+    <div
+      class="flex flex-col items-center gap-3 py-4 pb-6 text-center text-[clamp(0.9375rem,0.8rem+0.4vw,1.25rem)] leading-none font-medium tracking-[-0.04em] text-navy-50 md:flex-row md:justify-between md:text-left"
+    >
+      <p>© 2026 MCunha Marmoraria</p>
+      <p>CNPJ <em>[00.000.000/0001-00]</em> · Lago Sul, Brasília</p>
+      <a href="#" class="hover:underline">Política de privacidade</a>
+    </div>
+  </div>
+</footer>

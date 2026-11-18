@@ -1,0 +1,336 @@
+---
+import Logo from './Logo.astro';
+import { INSTAGRAM_URL, MAPS_DIRECTIONS, WHATSAPP_DISPLAY, whatsappLink } from '../lib/contact';
+
+const links = [
+  { label: 'Projetos', href: '#projetos' },
+  { label: 'Materiais', href: '#materiais' },
+  { label: 'Processo', href: '#garantias' },
+  { label: 'Para arquitetos', href: '#arquitetos' },
+  { label: 'Showroom', href: '#showroom' },
+];
+---
+
+<!--
+  3 variantes, controladas por data-attributes:
+  - data-state="top"   → estático sobre a hero, sem fundo
+  - data-state="float" → flutuante: pílula com fundo claro + sombra
+  - data-tone="dark"   → flutuante sobre seções escuras: fundo navy, texto claro
+  Desktop: some ao rolar para baixo (data-hidden) e volta ao rolar para cima.
+-->
+<header id="site-header" class="hdr fixed inset-x-0 top-0 z-50" data-state="top" data-tone="light">
+  <div class="hdr-bar mx-auto flex items-center justify-between gap-8 lg:gap-12">
+    <a href="#top" class="hdr-logo flex shrink-0 items-center [--logo-scale:0.62] lg:[--logo-scale:0.72]" aria-label="MCunha Marmoraria - início">
+      <Logo />
+    </a>
+
+    <nav class="hidden flex-1 lg:block" aria-label="Principal">
+      <ul class="flex items-center justify-center gap-[clamp(1.25rem,3vw,3rem)] text-[clamp(0.9375rem,0.75rem+0.3vw,1.0625rem)]">
+        {
+          links.map((l) => (
+            <li>
+              <a href={l.href} class="nav-link relative whitespace-nowrap py-2">
+                {l.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <a href="#orcamento" class="btn btn-gold hidden !px-5 !py-[10px] !text-[15px] sm:inline-flex">
+      Solicitar Orçamento
+      <img src="/svg/arrow-dark.svg" alt="" width="10" height="9" class="w-[10px]" />
+    </a>
+
+    <button
+      id="menu-toggle"
+      class="relative z-10 -mr-2 grid size-11 place-items-center lg:hidden"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <span class="menu-bar menu-bar-1 absolute h-[1.5px] w-6"></span>
+      <span class="menu-bar menu-bar-2 absolute h-[1.5px] w-6"></span>
+    </button>
+  </div>
+
+  <!-- Menu mobile: painel navy que entra da esquerda para a direita e ocupa a tela toda -->
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 -z-10 flex h-dvh flex-col overflow-y-auto bg-navy-900 px-5 pt-24 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-gold-50 lg:hidden"
+    data-open="false"
+    data-lenis-prevent
+    inert
+  >
+    <img src="/svg/deco-footer-r.svg" alt="" aria-hidden="true" class="menu-deco pointer-events-none absolute -right-16 bottom-40 w-56 opacity-[0.07]" />
+
+    <p class="menu-item mb-4 text-xs font-semibold tracking-[0.18em] text-gold-300 uppercase" style="--d:0">Menu</p>
+    <ul class="flex flex-col">
+      {
+        links.map((l, i) => (
+          <li class="menu-item border-b border-gold-50/10" style={`--d:${i + 1}`}>
+            <a href={l.href} class="mobile-link flex items-baseline gap-4 py-[14px]">
+              <span class="w-6 font-sans text-xs tabular-nums text-gold-300">{String(i + 1).padStart(2, '0')}</span>
+              <span class="font-serif text-[clamp(1.75rem,8vw,2.25rem)] leading-tight">{l.label}</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-auto flex flex-col gap-6 pt-10">
+      <div class="menu-item grid grid-cols-2 gap-4 text-sm" style="--d:6">
+        <a href={whatsappLink()} target="_blank" rel="noopener" class="flex flex-col gap-1">
+          <span class="text-xs tracking-[0.12em] text-gold-50/50 uppercase">WhatsApp</span>
+          <span class="font-semibold">{WHATSAPP_DISPLAY}</span>
+        </a>
+        <a href={INSTAGRAM_URL} target="_blank" rel="noopener" class="flex flex-col gap-1">
+          <span class="text-xs tracking-[0.12em] text-gold-50/50 uppercase">Instagram</span>
+          <span class="font-semibold">@mcunhamarmoraria</span>
+        </a>
+        <a href={MAPS_DIRECTIONS} target="_blank" rel="noopener" class="col-span-2 flex flex-col gap-1">
+          <span class="text-xs tracking-[0.12em] text-gold-50/50 uppercase">Showroom</span>
+          <span class="font-semibold">QI 21, Bloco E, Loja 54 · Lago Sul, Brasília</span>
+        </a>
+      </div>
+      <a href="#orcamento" class="menu-item btn btn-gold w-full" style="--d:7">
+        Solicitar Orçamento
+        <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .hdr {
+    --hdr-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.6s var(--hdr-ease);
+  }
+  .hdr[data-hidden='true'] {
+    transform: translateY(calc(-100% - 16px));
+  }
+
+  /* Barra: estado base = estático na hero */
+  .hdr-bar {
+    max-width: 1440px;
+    height: 64px;
+    margin-top: 0;
+    padding-inline: clamp(1.25rem, 4.4vw, 4rem);
+    border-radius: 0;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--color-navy-900);
+    box-shadow: none;
+    backdrop-filter: blur(0);
+    transition:
+      max-width 0.8s var(--hdr-ease),
+      height 0.8s var(--hdr-ease),
+      margin 0.8s var(--hdr-ease),
+      padding 0.8s var(--hdr-ease),
+      border-radius 0.8s var(--hdr-ease),
+      background-color 0.5s,
+      border-color 0.5s,
+      color 0.5s,
+      box-shadow 0.6s,
+      backdrop-filter 0.6s;
+  }
+  @media (min-width: 1024px) {
+    .hdr-bar {
+      height: 76px;
+    }
+  }
+
+  /* Variante flutuante (seções claras) */
+  .hdr[data-state='float'] .hdr-bar {
+    max-width: min(1240px, calc(100% - 24px));
+    height: 58px;
+    margin-top: 12px;
+    padding-inline: clamp(1.25rem, 2.6vw, 2.25rem) clamp(0.75rem, 1.2vw, 0.875rem);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.82);
+    border-color: rgb(13 28 49 / 0.08);
+    box-shadow:
+      0 12px 32px -12px rgb(13 28 49 / 0.25),
+      0 2px 6px rgb(13 28 49 / 0.06);
+    backdrop-filter: blur(14px) saturate(1.4);
+  }
+  @media (min-width: 1024px) {
+    .hdr[data-state='float'] .hdr-bar {
+      height: 64px;
+    }
+  }
+  @media (max-width: 639px) {
+    /* Sem o botão de orçamento, o lado direito (hambúrguer) pede o mesmo respiro do esquerdo */
+    .hdr[data-state='float'] .hdr-bar {
+      padding-inline: 1.25rem 0.875rem;
+    }
+  }
+
+  /* Variante flutuante sobre seções escuras */
+  .hdr[data-state='float'][data-tone='dark'] .hdr-bar {
+    background: rgb(8 17 31 / 0.82);
+    border-color: rgb(212 170 58 / 0.35);
+    color: var(--color-gold-50);
+    box-shadow: 0 12px 36px -12px rgb(0 0 0 / 0.6);
+  }
+  .hdr-logo :global(img) {
+    transition: filter 0.5s;
+  }
+  .hdr[data-state='float'][data-tone='dark'] .hdr-logo :global(img),
+  .hdr[data-menu='open'] .hdr-logo :global(img) {
+    filter: brightness(0) invert(0.96) sepia(0.15);
+  }
+
+  /* Menu mobile aberto: barra transparente sobre o painel navy */
+  .hdr[data-menu='open'] .hdr-bar {
+    background: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+    color: var(--color-gold-50);
+  }
+
+  /* Painel: entra da esquerda para a direita */
+  #mobile-menu {
+    clip-path: inset(0 100% 0 0);
+    visibility: hidden;
+    transition:
+      clip-path 0.7s cubic-bezier(0.76, 0, 0.24, 1),
+      visibility 0s linear 0.7s;
+  }
+  #mobile-menu[data-open='true'] {
+    clip-path: inset(0 0 0 0);
+    visibility: visible;
+    transition:
+      clip-path 0.8s cubic-bezier(0.76, 0, 0.24, 1),
+      visibility 0s;
+  }
+  .menu-item {
+    opacity: 0;
+    transform: translateX(-28px);
+    transition:
+      opacity 0.3s,
+      transform 0.5s var(--hdr-ease);
+  }
+  #mobile-menu[data-open='true'] .menu-item {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s calc(0.25s + var(--d) * 0.05s),
+      transform 0.9s var(--hdr-ease) calc(0.25s + var(--d) * 0.05s);
+  }
+  .mobile-link:active {
+    color: var(--color-gold-300);
+  }
+
+  .menu-bar {
+    background: currentColor;
+    transition: transform 0.5s var(--hdr-ease);
+  }
+  .menu-bar-1 {
+    transform: translateY(-4px);
+  }
+  .menu-bar-2 {
+    transform: translateY(4px);
+  }
+  #menu-toggle[aria-expanded='true'] .menu-bar-1 {
+    transform: rotate(45deg);
+  }
+  #menu-toggle[aria-expanded='true'] .menu-bar-2 {
+    transform: rotate(-45deg);
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.5s var(--ease-out-expo);
+  }
+  .nav-link:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #mobile-menu,
+    #mobile-menu[data-open='true'] {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const header = document.getElementById('site-header')!;
+  const toggle = document.getElementById('menu-toggle')!;
+  const menu = document.getElementById('mobile-menu')!;
+  const desktop = window.matchMedia('(min-width: 1024px)');
+  const darkSections = Array.from(document.querySelectorAll<HTMLElement>('[data-theme="dark"]'));
+
+  const setOpen = (open: boolean) => {
+    menu.dataset.open = String(open);
+    menu.toggleAttribute('inert', !open);
+    header.dataset.menu = open ? 'open' : '';
+    toggle.setAttribute('aria-expanded', String(open));
+    toggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
+    const lenis = (window as any).__lenis;
+    if (open) {
+      header.dataset.hidden = 'false';
+      lenis?.stop();
+      document.body.style.overflow = 'hidden';
+    } else {
+      lenis?.start();
+      document.body.style.overflow = '';
+    }
+  };
+
+  toggle.addEventListener('click', () => setOpen(menu.dataset.open !== 'true'));
+  menu.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+  document.addEventListener('keydown', (e) => e.key === 'Escape' && menu.dataset.open === 'true' && setOpen(false));
+  desktop.addEventListener('change', (e) => e.matches && setOpen(false));
+
+  let last = window.scrollY;
+  let ticking = false;
+  const update = () => {
+    ticking = false;
+    const y = window.scrollY;
+    const hero = document.getElementById('top');
+    const floatAt = hero ? Math.min(hero.offsetHeight * 0.35, 260) : 80;
+
+    header.dataset.state = y > floatAt ? 'float' : 'top';
+
+    // Tom: verifica se a linha do header está sobre uma seção escura
+    const probe = 40;
+    const dark = darkSections.some((s) => {
+      const r = s.getBoundingClientRect();
+      return r.top <= probe && r.bottom >= probe;
+    });
+    header.dataset.tone = dark ? 'dark' : 'light';
+
+    // Desktop: some ao descer, volta ao subir
+    if (menu.dataset.open !== 'true') {
+      const delta = y - last;
+      if (!desktop.matches || y < floatAt) header.dataset.hidden = 'false';
+      else if (delta > 4) header.dataset.hidden = 'true';
+      else if (delta < -4) header.dataset.hidden = 'false';
+    }
+    last = y;
+  };
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(update);
+      }
+    },
+    { passive: true },
+  );
+  update();
+</script>
