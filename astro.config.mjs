@@ -13,11 +13,17 @@ const painel = {
     'astro:config:setup': ({ injectRoute }) => {
       const rota = (pattern, entrypoint) => injectRoute({ pattern, entrypoint, prerender: false });
       rota('/painel', './src/admin/pages/index.astro');
+      rota('/painel/entrar', './src/admin/pages/entrar.astro');
+      rota('/api/painel/sessao', './src/admin/api/sessao.ts');
       rota('/painel/novo', './src/admin/pages/editar.astro');
       rota('/painel/projetos/[id]', './src/admin/pages/editar.astro');
       rota('/api/painel', './src/admin/api/acoes.ts');
       rota('/api/painel/projeto', './src/admin/api/projeto.ts');
       rota('/api/painel/foto', './src/admin/api/foto.ts');
+      rota('/painel/materiais', './src/admin/pages/materiais.astro');
+      rota('/painel/materiais/novo', './src/admin/pages/editar-material.astro');
+      rota('/painel/materiais/[id]', './src/admin/pages/editar-material.astro');
+      rota('/api/painel/material', './src/admin/api/material.ts');
     },
   },
 };

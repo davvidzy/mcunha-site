@@ -13,7 +13,7 @@ const posHome = id ? lerHome().indexOf(id) : -1;
 const titulo = p?.titulo ?? 'Novo projeto';
 ---
 
-<PainelLayout title={titulo}>
+<PainelLayout title={titulo} aba="projetos">
   <Fragment slot="acoes">
     {id && <a href={`/projetos/${id}/`} target="_blank" rel="noopener" class="pn-btn pn-ghost">Ver página</a>}
   </Fragment>
@@ -577,6 +577,11 @@ const titulo = p?.titulo ?? 'Novo projeto';
     try {
       const r = await fetch('/api/painel/projeto', { method: 'POST', body: fd });
       const j = await r.json().catch(() => ({}));
+      if (r.status === 401) {
+        sujo = false;
+        location.href = `/painel/entrar?volta=${encodeURIComponent(location.pathname)}`;
+        return;
+      }
       if (r.status === 422 && j.erros) {
         mostrarErros(j.erros);
         throw new Error(j.erro);

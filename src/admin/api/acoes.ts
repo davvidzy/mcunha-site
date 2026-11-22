@@ -1,7 +1,7 @@
 // Ações rápidas do painel: ordem da home, prioridade e exclusão.
 import type { APIRoute } from 'astro';
 import { store } from '../lib/store';
-import { HOME, PRIORIDADES, SLUG, jsonDe, lerHome, origemOk, pastaDe, resposta } from '../lib/projeto';
+import { HOME, PRIORIDADES, SLUG, jsonDe, lerHome, matJsonDe, matPastaDe, origemOk, pastaDe, resposta } from '../lib/projeto';
 
 export const prerender = false;
 const HOME_VAGAS = 3;
@@ -48,6 +48,30 @@ export const POST: APIRoute = async ({ request, url }) => {
         lote.gravar(HOME, JSON.stringify({ destaques: home.filter((x) => x !== body.id) }, null, 2) + '\n');
       }
       await lote.confirmar(`Painel: exclui ${titulo}`);
+      return resposta({ ok: true });
+    }
+
+    case 'ordemMateriais': {
+      const ids = body.ids;
+      const ok = (id: unknown): id is string => typeof id === 'string' && SLUG.test(id) && store.existe(matJsonDe(id));
+      if (!Array.isArray(ids) || !ids.every(ok)) return resposta({ erro: 'Lista de materiais inválida' }, 400);
+      ids.forEach((id, i) => {
+        const data = JSON.parse(store.ler(matJsonDe(id))!);
+        data.ordem = i;
+        lote.gravar(matJsonDe(id), JSON.stringify(data, null, 2) + '\n');
+      });
+      await lote.confirmar('Painel: ordem dos materiais');
+      return resposta({ ok: true });
+    }
+
+    case 'excluirMaterial': {
+      if (typeof body.id !== 'string' || !SLUG.test(body.id) || !store.existe(matJsonDe(body.id))) {
+        return resposta({ erro: 'Material não encontrado' }, 404);
+      }
+      const nome = JSON.parse(store.ler(matJsonDe(body.id))!).nome;
+      lote.remover(matJsonDe(body.id));
+      lote.remover(matPastaDe(body.id));
+      await lote.confirmar(`Painel: exclui material ${nome}`);
       return resposta({ ok: true });
     }
   }

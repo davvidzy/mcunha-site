@@ -1,0 +1,24 @@
+{
+  "nome": "Granitos",
+  "frase": "Uso intenso",
+  "pedra": "../../assets/materiais/granitos/pedra.webp",
+  "descricao": "Resistente e versátil, o granito aguenta o dia a dia mais pesado. É uma das opções mais seguras para cozinhas e áreas de muito uso.",
+  "pontosFortes": [
+    "Muito resistente a calor e riscos",
+    "Baixa absorção de manchas",
+    "Ótimo custo-benefício"
+  ],
+  "indicadoPara": [
+    "Cozinha",
+    "Área gourmet",
+    "Escada",
+    "Área externa"
+  ],
+  "cuidados": "Limpe com detergente neutro. Evite água sanitária e produtos abrasivos. A impermeabilização deve ser refeita periodicamente.",
+  "variedades": [
+    "Preto São Gabriel",
+    "Branco Itaúnas",
+    "Cinza Andorinha"
+  ],
+  "ordem": 2
+}

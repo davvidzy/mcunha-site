@@ -19,6 +19,7 @@ export async function acao(body: object): Promise<boolean> {
       body: JSON.stringify(body),
     });
     const j = await r.json().catch(() => ({}));
+    if (r.status === 401) location.href = `/painel/entrar?volta=${encodeURIComponent(location.pathname)}`;
     if (!r.ok) throw new Error(j.erro || 'Não foi possível salvar');
     return true;
   } catch (e) {

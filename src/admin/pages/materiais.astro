@@ -1,0 +1,118 @@
+---
+// Lista de materiais (pedras): arrastar para ordenar como aparecem no site.
+import PainelLayout from '../PainelLayout.astro';
+import { listarMateriais, miniatura } from '../lib/dados';
+
+const materiais = listarMateriais();
+---
+
+<PainelLayout title="Materiais" aba="materiais">
+  <Fragment slot="acoes">
+    <a href="/#materiais" target="_blank" rel="noopener" class="pn-btn pn-ghost max-sm:hidden">Ver no site</a>
+    <a href="/painel/materiais/novo" class="pn-btn pn-primary">Novo material</a>
+  </Fragment>
+
+  <main class="mx-auto flex max-w-[1040px] flex-col gap-10 px-5 py-10 sm:py-14">
+    <div class="flex flex-col gap-1">
+      <h1 class="font-serif text-[2.25rem] leading-tight">Materiais</h1>
+      <p class="text-[15px] text-stone-600">Cada pedra tem uma página no site. Arraste para mudar a ordem da lista na página inicial.</p>
+    </div>
+
+    {
+      materiais.length === 0 ? (
+        <div class="pn-box flex flex-col items-start gap-4 p-8">
+          <p class="text-stone-600">Nenhum material ainda.</p>
+          <a href="/painel/materiais/novo" class="pn-btn pn-primary">Novo material</a>
+        </div>
+      ) : (
+        <ol class="pn-box" data-lista>
+          {materiais.map((m) => (
+            <li class="mat-row" data-id={m.id}>
+              <button type="button" class="mat-handle" aria-label={`Mover ${m.nome}. Use as setas para cima e para baixo.`} data-handle>
+                <svg width="14" height="20" viewBox="0 0 14 20" aria-hidden="true">
+                  {[4, 10, 16].map((y) => [<circle cx="4" cy={y} r="1.6" />, <circle cx="10" cy={y} r="1.6" />])}
+                </svg>
+              </button>
+              <a href={`/painel/materiais/${m.id}`} class="flex min-w-0 flex-1 items-center gap-4">
+                <img src={miniatura(m.pedra, 160)} alt="" width="64" height="64" class="size-14 shrink-0 object-contain" />
+                <span class="flex min-w-0 flex-col">
+                  <span class="truncate font-medium">{m.nome}</span>
+                  <span class="truncate text-[13px] text-stone-600">{m.frase}</span>
+                </span>
+              </a>
+              <a href={`/materiais/${m.id}/`} target="_blank" rel="noopener" class="text-[13px] text-stone-600 underline-offset-2 hover:text-navy-900 hover:underline max-sm:hidden">
+                Ver página
+              </a>
+              <a href={`/painel/materiais/${m.id}`} class="pn-btn pn-ghost !min-h-8 !px-3 !text-[13px]">Editar</a>
+            </li>
+          ))}
+        </ol>
+      )
+    }
+  </main>
+</PainelLayout>
+
+<script>
+  import Sortable from 'sortablejs';
+  import { acao, toast } from '../lib/ui';
+
+  const lista = document.querySelector<HTMLOListElement>('[data-lista]');
+  if (lista) {
+    const ids = () => Array.from(lista.querySelectorAll<HTMLElement>('li[data-id]')).map((li) => li.dataset.id!);
+    const salvar = async () => (await acao({ acao: 'ordemMateriais', ids: ids() })) && toast('Ordem salva');
+    Sortable.create(lista, {
+      handle: '[data-handle]',
+      animation: 220,
+      easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      ghostClass: 'is-ghost',
+      onEnd: (e) => e.oldIndex !== e.newIndex && salvar(),
+    });
+    lista.querySelectorAll<HTMLButtonElement>('[data-handle]').forEach((h) =>
+      h.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+        e.preventDefault();
+        const li = h.closest('li')!;
+        const alvo = e.key === 'ArrowUp' ? li.previousElementSibling : li.nextElementSibling;
+        if (!alvo) return;
+        e.key === 'ArrowUp' ? alvo.before(li) : alvo.after(li);
+        h.focus();
+        salvar();
+      }),
+    );
+  }
+</script>
+
+<style>
+  .mat-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px 10px 8px;
+    background: #fff;
+  }
+  .mat-row.is-ghost {
+    background: var(--color-gold-50);
+  }
+  .mat-row.is-ghost > * {
+    opacity: 0.35;
+  }
+  .mat-handle {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 44px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    color: var(--color-stone-400);
+    fill: currentColor;
+    cursor: grab;
+    touch-action: none;
+    transition:
+      color 0.2s,
+      background-color 0.2s;
+  }
+  .mat-handle:hover {
+    color: var(--color-navy-900);
+    background: var(--color-stone-100);
+  }
+</style>

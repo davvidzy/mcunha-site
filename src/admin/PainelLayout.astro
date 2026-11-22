@@ -5,8 +5,13 @@ import Logo from '../components/Logo.astro';
 
 interface Props {
   title: string;
+  aba?: 'projetos' | 'materiais';
 }
-const { title } = Astro.props;
+const { title, aba } = Astro.props;
+const abas = [
+  { id: 'projetos', label: 'Projetos', href: '/painel' },
+  { id: 'materiais', label: 'Materiais', href: '/painel/materiais' },
+];
 ---
 
 <!doctype html>
@@ -27,12 +32,25 @@ const { title } = Astro.props;
   <body class="min-h-dvh bg-[#faf9f7] text-navy-900">
     <header class="border-b border-stone-200/70 bg-white">
       <div class="mx-auto flex h-16 max-w-[1040px] items-center justify-between gap-4 px-5">
-        <a href="/painel" class="flex items-center gap-3" aria-label="Painel MCunha: início">
-          <span class="[--logo-scale:0.42]"><Logo /></span>
-          <span class="text-sm text-stone-400">Painel</span>
-        </a>
+        <div class="flex items-center gap-5">
+          <a href="/painel" aria-label="Painel MCunha: início" class="[--logo-scale:0.42]"><Logo /></a>
+          <nav class="flex gap-1" aria-label="Seções do painel">
+            {
+              abas.map((a) => (
+                <a
+                  href={a.href}
+                  aria-current={aba === a.id ? 'page' : undefined}
+                  class="rounded-full px-3 py-1.5 text-sm text-stone-600 transition-colors hover:text-navy-900 aria-[current=page]:bg-stone-100 aria-[current=page]:font-medium aria-[current=page]:text-navy-900"
+                >
+                  {a.label}
+                </a>
+              ))
+            }
+          </nav>
+        </div>
         <nav class="flex items-center gap-2" aria-label="Ações">
           <slot name="acoes" />
+          <button type="button" class="pn-btn !px-3 text-stone-600 hover:text-navy-900" data-sair>Sair</button>
         </nav>
       </div>
     </header>
@@ -46,6 +64,10 @@ const { title } = Astro.props;
         toast(msg);
         history.replaceState(null, '', location.pathname);
       }
+      document.querySelector('[data-sair]')?.addEventListener('click', async () => {
+        await fetch('/api/painel/sessao', { method: 'DELETE' });
+        location.href = '/painel/entrar';
+      });
     </script>
   </body>
 </html>

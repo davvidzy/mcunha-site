@@ -6,7 +6,7 @@ import { dirname, join, normalize, sep } from 'node:path';
 
 const ROOT = process.cwd();
 // Só estas pastas podem ser escritas pelo painel
-const PERMITIDO = ['src/content/', 'src/assets/projetos/'];
+const PERMITIDO = ['src/content/', 'src/assets/projetos/', 'src/assets/materiais/'];
 
 function caminho(rel: string) {
   const limpo = normalize(rel).split(sep).join('/');

@@ -25,7 +25,7 @@ const pendentes = todos.filter((p) => faltas(p).length).length;
 const cheia = escolhidos.length >= HOME_VAGAS;
 ---
 
-<PainelLayout title="Projetos">
+<PainelLayout title="Projetos" aba="projetos">
   <Fragment slot="acoes">
     <a href="/" target="_blank" rel="noopener" class="pn-btn pn-ghost">Ver site</a>
     <a href="/painel/novo" class="pn-btn pn-primary">Novo projeto</a>

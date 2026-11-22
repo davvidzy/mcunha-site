@@ -1,0 +1,189 @@
+---
+import { Image } from 'astro:assets';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/Header.astro';
+import Footer from '../../components/Footer.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { getMateriais, projetosDe, type Material } from '../../lib/materiais';
+import { getProjetos } from '../../lib/projetos';
+import { whatsappLink } from '../../lib/contact';
+
+export async function getStaticPaths() {
+  const materiais = await getMateriais();
+  const projetos = await getProjetos();
+  return materiais.map((material) => ({
+    params: { slug: material.id },
+    props: {
+      material,
+      outros: materiais.filter((m) => m.id !== material.id),
+      projetos: projetosDe(material, projetos).slice(0, 6),
+    },
+  }));
+}
+
+interface Props {
+  material: Material;
+  outros: Material[];
+  projetos: Awaited<ReturnType<typeof getProjetos>>;
+}
+const { material, outros, projetos } = Astro.props;
+const m = material.data;
+const cta = whatsappLink(`Olá! Vi a página de ${m.nome} no site e gostaria de um orçamento.`);
+const blocos = [
+  { titulo: 'Pontos fortes', itens: m.pontosFortes },
+  { titulo: 'Indicado para', itens: m.indicadoPara },
+].filter((b) => b.itens.length);
+---
+
+<Layout title={`${m.nome} | MCunha Marmoraria`} description={`${m.nome}: ${m.descricao}`.slice(0, 160)}>
+  <Header />
+  <main id="conteudo" tabindex="-1" class="bg-cream pt-[64px] outline-none lg:pt-[76px]">
+    <!-- Abertura -->
+    <section class="container-x grid items-center gap-10 pt-[clamp(2rem,5vw,4rem)] pb-[clamp(4rem,8vw,7rem)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-16">
+      <div class="flex flex-col items-start gap-6">
+        <nav aria-label="Você está em" class="text-sm text-stone-600">
+          <a href="/" class="hover:underline">Início</a>
+          <span class="mx-2" aria-hidden="true">/</span>
+          <a href="/#materiais" class="hover:underline">Materiais</a>
+          <span class="mx-2" aria-hidden="true">/</span>
+          <span aria-current="page" class="text-navy-900">{m.nome}</span>
+        </nav>
+        <p class="text-xs font-semibold tracking-[0.16em] text-gold-700 uppercase" data-reveal>{m.frase}</p>
+        <h1 class="font-serif text-[length:var(--text-display)] leading-none text-navy-900 uppercase" data-reveal="split">{m.nome}</h1>
+        <p class="max-w-[52ch] text-[length:var(--text-body)] leading-relaxed text-navy-900" data-reveal data-delay="0.15">{m.descricao}</p>
+        <div class="flex flex-wrap items-center gap-x-6 gap-y-3" data-reveal data-delay="0.25">
+          <a href={cta} target="_blank" rel="noopener" class="btn btn-gold max-sm:!px-5 max-sm:!text-[15px]">
+            Pedir orçamento
+            <img src="/svg/arrow-dark.svg" alt="" width="14" height="13" class="w-[14px]" />
+          </a>
+          {projetos.length > 0 && <a href="#projetos-material" class="link-underline p-[14px] text-base text-navy-950">Ver projetos</a>}
+        </div>
+      </div>
+
+      <div class="relative mx-auto aspect-square w-full max-w-[520px]" aria-hidden="true">
+        <div class="absolute inset-[12%] rounded-full bg-[radial-gradient(circle,rgb(185_143_44/0.18),transparent_70%)]"></div>
+        <div class="stone-float absolute inset-0">
+          <Image
+            src={m.pedra}
+            alt=""
+            widths={[480, 800, 1040]}
+            sizes="(min-width: 1024px) 520px, 90vw"
+            loading="eager"
+            class="size-full object-contain drop-shadow-[0_40px_40px_rgb(0_0_0/0.28)]"
+          />
+        </div>
+      </div>
+    </section>
+
+    <!-- Características -->
+    {
+      (blocos.length > 0 || m.cuidados) && (
+        <section data-theme="dark" class="border-t-[2.5px] border-gold-400 bg-navy-900 text-gold-50">
+          <div class="container-x grid gap-10 py-[clamp(4rem,8vw,7rem)] md:grid-cols-3 md:gap-8" data-reveal="stagger">
+            {blocos.map((b) => (
+              <div class="flex flex-col gap-5">
+                <h2 class="font-serif text-[length:var(--text-sub)] text-gold-300">{b.titulo}</h2>
+                <ul class="flex flex-col gap-3 text-[length:var(--text-body)] leading-snug">
+                  {b.itens.map((t) => (
+                    <li class="flex gap-3">
+                      <img src="/svg/check.svg" alt="" width="16" height="16" class="mt-1 size-4 shrink-0 invert" />
+                      {t}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+            {m.cuidados && (
+              <div class="flex flex-col gap-5">
+                <h2 class="font-serif text-[length:var(--text-sub)] text-gold-300">Cuidados</h2>
+                <p class="text-[length:var(--text-body)] leading-relaxed text-gold-50/85">{m.cuidados}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Variedades -->
+    {
+      m.variedades.length > 0 && (
+        <section class="container-x flex flex-col gap-6 pt-[clamp(4rem,8vw,7rem)]">
+          <h2 class="section-title text-navy-900" data-reveal="split">Algumas variedades</h2>
+          <ul class="flex flex-wrap gap-3" data-reveal="stagger">
+            {m.variedades.map((v) => (
+              <li class="rounded-full border border-stone-400 px-5 py-2.5 text-[length:var(--text-body)] text-navy-900">{v}</li>
+            ))}
+          </ul>
+          <p class="text-sm text-stone-600" data-reveal>Disponibilidade varia conforme o estoque. Venha ver as chapas no showroom.</p>
+        </section>
+      )
+    }
+
+    <!-- Projetos com esta pedra -->
+    {
+      projetos.length > 0 && (
+        <section id="projetos-material" class="scroll-mt-24 pt-[clamp(4rem,8vw,7rem)]">
+          <div class="container-x flex flex-col gap-10">
+            <div class="flex items-end justify-between gap-6">
+              <h2 class="section-title text-navy-900" data-reveal="split">Projetos em {m.nome.toLowerCase()}</h2>
+              <a href="/projetos/" class="link-underline shrink-0 text-base text-navy-950" data-reveal>VER TODOS</a>
+            </div>
+            <ul class="grid gap-5 sm:grid-cols-2 md:gap-6 lg:grid-cols-3" data-reveal="stagger">
+              {projetos.map((p) => (
+                <li>
+                  <ProjectCard projeto={p} sizes="(min-width: 1024px) 32vw, (min-width: 640px) 48vw, 92vw" />
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )
+    }
+
+    <!-- Outros materiais -->
+    {
+      outros.length > 0 && (
+        <section class="container-x flex flex-col gap-8 py-[clamp(4rem,8vw,7rem)]">
+          <h2 class="section-title text-navy-900" data-reveal="split">Outros materiais</h2>
+          <ul class="grid grid-cols-2 gap-4 md:grid-cols-3" data-reveal="stagger">
+            {outros.map((o) => (
+              <li>
+                <a
+                  href={`/materiais/${o.id}/`}
+                  class="group flex h-full flex-col items-center gap-3 rounded-[var(--radius-card)] border border-stone-200 bg-white/60 p-5 text-center transition-colors duration-300 hover:border-stone-400 hover:bg-white"
+                >
+                  <Image
+                    src={o.data.pedra}
+                    alt=""
+                    widths={[240, 400]}
+                    sizes="200px"
+                    class="aspect-square w-full max-w-[160px] object-contain transition-transform duration-700 ease-[var(--ease-out-expo)] group-hover:-rotate-6 group-hover:scale-105"
+                  />
+                  <span class="font-serif text-[clamp(1.25rem,1rem+0.6vw,1.75rem)] text-navy-900">{o.data.nome}</span>
+                  <span class="text-xs font-semibold tracking-[0.14em] text-gold-700 uppercase">{o.data.frase}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )
+    }
+  </main>
+  <Footer />
+</Layout>
+
+<style>
+  /* Pedra "flutuando" devagar; parada para quem pede menos movimento */
+  .stone-float {
+    animation: flutuar 7s ease-in-out infinite;
+  }
+  @keyframes flutuar {
+    0%,
+    100% {
+      transform: translateY(0) rotate(-3deg);
+    }
+    50% {
+      transform: translateY(-14px) rotate(2deg);
+    }
+  }
+</style>

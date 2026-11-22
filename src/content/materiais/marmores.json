@@ -1,0 +1,24 @@
+{
+  "nome": "Mármores",
+  "frase": "Veios clássicos",
+  "pedra": "../../assets/materiais/marmores/pedra.webp",
+  "descricao": "O clássico da arquitetura: veios elegantes e um acabamento que valoriza qualquer ambiente. Ideal para banheiros, salas e peças de destaque.",
+  "pontosFortes": [
+    "Veios e cores únicos em cada chapa",
+    "Acabamento elegante, polido ou levigado",
+    "Ótimo para peças esculpidas e revestimentos"
+  ],
+  "indicadoPara": [
+    "Banheiro",
+    "Sala",
+    "Escada",
+    "Lavabo"
+  ],
+  "cuidados": "É mais sensível que o granito: marca com ácidos como limão e vinagre. Seque líquidos derramados logo e refaça a impermeabilização com mais frequência.",
+  "variedades": [
+    "Carrara",
+    "Calacatta",
+    "Nero Marquina"
+  ],
+  "ordem": 1
+}

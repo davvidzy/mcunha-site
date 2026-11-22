@@ -1,0 +1,24 @@
+{
+  "nome": "Quartzitos",
+  "frase": "Alta resistência",
+  "pedra": "../../assets/materiais/quartzitos/pedra.webp",
+  "descricao": "Pedra natural muito dura, com a beleza dos veios do mármore e a resistência do granito. É a escolha certa para quem quer uma bancada clara e marcante sem abrir mão do uso diário.",
+  "pontosFortes": [
+    "Resiste bem a calor, riscos e manchas",
+    "Veios marcantes, com aparência de mármore",
+    "Funciona em áreas internas e externas"
+  ],
+  "indicadoPara": [
+    "Cozinha",
+    "Área gourmet",
+    "Banheiro",
+    "Fachada"
+  ],
+  "cuidados": "Limpe com detergente neutro e pano macio. Evite produtos ácidos e abrasivos. A impermeabilização deve ser refeita periodicamente.",
+  "variedades": [
+    "Taj Mahal",
+    "Mont Blanc",
+    "Perla Venata"
+  ],
+  "ordem": 0
+}

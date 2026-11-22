@@ -25,12 +25,17 @@ export function slugify(t: string) {
     .slice(0, 60);
 }
 
-export function slugLivre(base: string) {
-  const b = slugify(base) || 'projeto';
+export function slugLivre(base: string, ocupado = (s: string) => store.existe(jsonDe(s))) {
+  const b = slugify(base) || 'item';
   let s = b;
-  for (let i = 2; store.existe(jsonDe(s)); i++) s = `${b}-${i}`;
+  for (let i = 2; ocupado(s); i++) s = `${b}-${i}`;
   return s;
 }
+
+// Materiais (uma página por pedra)
+export const matJsonDe = (id: string) => `src/content/materiais/${id}.json`;
+export const matPastaDe = (id: string) => `src/assets/materiais/${id}`;
+export const matRefDe = (id: string, arquivo: string) => `../../assets/materiais/${id}/${arquivo}`;
 
 /** Converte qualquer foto enviada em WebP otimizado (até 2400px, orientação corrigida) */
 export async function otimizar(arquivo: File) {

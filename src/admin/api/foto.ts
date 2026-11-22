@@ -9,7 +9,7 @@ export const prerender = false;
 export const GET: APIRoute = async ({ url }) => {
   const rel = normalize(url.searchParams.get('p') || '').split(sep).join('/');
   const w = Math.min(1600, Math.max(64, parseInt(url.searchParams.get('w') || '240', 10) || 240));
-  if (!rel.startsWith('src/assets/projetos/') || rel.includes('..')) return new Response('Não encontrado', { status: 404 });
+  if (!/^src\/assets\/(projetos|materiais)\//.test(rel) || rel.includes('..')) return new Response('Não encontrado', { status: 404 });
   const f = join(process.cwd(), rel);
   if (!existsSync(f)) return new Response('Não encontrado', { status: 404 });
   const buf = await sharp(readFileSync(f)).resize({ width: w, withoutEnlargement: true }).webp({ quality: 78 }).toBuffer();

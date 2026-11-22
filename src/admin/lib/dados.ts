@@ -2,7 +2,7 @@
 // O painel não usa as coleções do Astro: assim mostra sempre o estado mais recente,
 // mesmo logo depois de salvar ou excluir.
 import { store } from './store';
-import { jsonDe, lerHome } from './projeto';
+import { jsonDe, lerHome, matJsonDe } from './projeto';
 import { PESO } from '../../lib/projetos';
 
 export type ProjetoPainel = {
@@ -53,3 +53,50 @@ export { lerHome };
 /** URL da miniatura de uma foto do projeto (ref como gravada no JSON) */
 export const miniatura = (ref: string, w = 240) =>
   `/api/painel/foto?p=${encodeURIComponent(ref.replace(/^\.\.\/\.\.\//, 'src/'))}&w=${w}`;
+
+// ---------- Materiais ----------
+
+export type MaterialPainel = {
+  id: string;
+  nome: string;
+  frase: string;
+  pedra: string;
+  descricao: string;
+  pontosFortes: string[];
+  indicadoPara: string[];
+  cuidados: string;
+  variedades: string[];
+  ordem: number;
+};
+
+const lista = (v: unknown) => (Array.isArray(v) ? v.filter((x) => typeof x === 'string') : []);
+
+export function lerMaterial(id: string): MaterialPainel | null {
+  try {
+    const d = JSON.parse(store.ler(matJsonDe(id)) || 'null');
+    if (!d) return null;
+    return {
+      id,
+      nome: d.nome ?? '',
+      frase: d.frase ?? '',
+      pedra: d.pedra ?? '',
+      descricao: d.descricao ?? '',
+      pontosFortes: lista(d.pontosFortes),
+      indicadoPara: lista(d.indicadoPara),
+      cuidados: d.cuidados ?? '',
+      variedades: lista(d.variedades),
+      ordem: Number(d.ordem) || 0,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function listarMateriais(): MaterialPainel[] {
+  return store
+    .listar('src/content/materiais')
+    .filter((f) => f.endsWith('.json'))
+    .map((f) => lerMaterial(f.slice(0, -5)))
+    .filter((m): m is MaterialPainel => Boolean(m))
+    .sort((a, b) => a.ordem - b.ordem || a.nome.localeCompare(b.nome, 'pt-BR'));
+}

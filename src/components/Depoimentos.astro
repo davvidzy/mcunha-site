@@ -1,7 +1,8 @@
 ---
 import { Picture } from 'astro:assets';
 import cida from '../assets/img/depoimento-cida.jpg';
-import { GOOGLE_REVIEWS_URL } from '../lib/contact';
+// TODO: foto ilustrativa só para a prévia; trocar pela foto real da cliente (ou remover) antes de publicar
+import marcia from '../assets/img/depoimento-marcia.webp';
 
 // Para adicionar depoimentos, basta incluir novos objetos neste array.
 const depoimentos = [
@@ -10,7 +11,15 @@ const depoimentos = [
     img: cida,
     alt: 'Retrato de Cida Almeida sorrindo, sentada no sofá',
     text: '“Empresa que respeita o cliente de modo geral, com excelentes profissionais. Sempre sou atendida pela melhor vendedora e agora gerente da loja, Cristina. Sempre atenciosa e detalhista. Entrega sempre no prazo, com ótimo preços e produtos de muita qualidade e beleza. Super indico.”',
-    href: GOOGLE_REVIEWS_URL,
+    href: 'https://maps.app.goo.gl/CV8ob3o9XDnmo5Jk7',
+  },
+  {
+    name: 'Marcia Hofmann',
+    img: marcia,
+    alt: 'Retrato de Marcia Hofmann sorrindo ao ar livre',
+    pos: 'object-[68%_30%]',
+    text: '“Excelente. O atendimento diferenciado. Fiz alguns contatos para tirar dúvidas e pedir sugestão de material e sempre fui bem orientada. Cumpriram os prazos, enfim, não tivemos nenhum problema com a empresa.”',
+    href: 'https://maps.app.goo.gl/MiuBxiF7NPVRjkS69',
   },
 ];
 const multi = depoimentos.length > 1;
@@ -49,7 +58,7 @@ const multi = depoimentos.length > 1;
               fallbackFormat="jpg"
                 widths={[480, 720, 1000]}
                 sizes="(min-width: 1024px) 46vw, 100vw"
-                class="absolute inset-0 size-full object-cover object-[50%_25%]"
+                class:list={['absolute inset-0 size-full object-cover', d.pos ?? 'object-[50%_25%]']}
               />
             </div>
 
@@ -79,6 +88,13 @@ const multi = depoimentos.length > 1;
       >
         <img src="/svg/chev-left.svg" alt="" width="24" height="24" class="rotate-180" />
       </button>
+      {
+        multi && (
+          <p class="self-center text-sm tabular-nums text-gold-100" aria-live="polite">
+            <span data-atual>01</span> / {String(depoimentos.length).padStart(2, '0')}
+          </p>
+        )
+      }
       <button
         data-next
         class="grid size-[44.5px] place-items-center rounded-full border-[0.25px] border-gold-50 bg-navy-800 transition-[background-color,transform] duration-300 hover:scale-105 hover:bg-navy-950 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:scale-100"
@@ -106,6 +122,8 @@ const multi = depoimentos.length > 1;
       const current = slides[index];
       index = (index + dir + slides.length) % slides.length;
       const next = slides[index];
+      const atual = root.querySelector('[data-atual]');
+      if (atual) atual.textContent = String(index + 1).padStart(2, '0');
       next.classList.remove('invisible');
       next.removeAttribute('aria-hidden');
       current.setAttribute('aria-hidden', 'true');

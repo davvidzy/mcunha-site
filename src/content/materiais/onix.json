@@ -1,0 +1,24 @@
+{
+  "nome": "Ônix",
+  "frase": "Peças de destaque",
+  "pedra": "../../assets/materiais/onix/pedra.webp",
+  "descricao": "Pedra translúcida e rara, com cores intensas. Com iluminação por trás, vira a peça principal do ambiente.",
+  "pontosFortes": [
+    "Translucidez que permite retroiluminação",
+    "Cores e desenhos marcantes",
+    "Exclusividade em cada peça"
+  ],
+  "indicadoPara": [
+    "Painéis",
+    "Bancadas de lavabo",
+    "Bares",
+    "Peças decorativas"
+  ],
+  "cuidados": "É delicado: evite impactos, ácidos e uso intenso. Indicado para áreas de pouco desgaste.",
+  "variedades": [
+    "Ônix Mel",
+    "Ônix Branco",
+    "Ônix Verde"
+  ],
+  "ordem": 3
+}

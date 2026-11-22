@@ -1,0 +1,322 @@
+---
+// Criar / editar material. /painel/materiais/novo e /painel/materiais/[id]
+import PainelLayout from '../PainelLayout.astro';
+import { MAX_MB } from '../lib/projeto';
+import { lerMaterial, miniatura } from '../lib/dados';
+
+const { id } = Astro.params;
+const m = id ? lerMaterial(id) : null;
+if (id && !m) return Astro.redirect('/painel/materiais?aviso=Material não encontrado');
+const nome = m?.nome ?? 'Novo material';
+const listas = [
+  { campo: 'pontosFortes', label: 'Pontos fortes', valor: m?.pontosFortes, ex: 'Resiste bem a calor e riscos\nVeios marcantes' },
+  { campo: 'indicadoPara', label: 'Indicado para', valor: m?.indicadoPara, ex: 'Cozinha\nÁrea gourmet' },
+  { campo: 'variedades', label: 'Variedades', valor: m?.variedades, ex: 'Taj Mahal\nMont Blanc' },
+];
+---
+
+<PainelLayout title={nome} aba="materiais">
+  <Fragment slot="acoes">
+    {id && <a href={`/materiais/${id}/`} target="_blank" rel="noopener" class="pn-btn pn-ghost max-sm:hidden">Ver página</a>}
+  </Fragment>
+
+  <form class="mx-auto max-w-[1040px] px-5 pt-8 pb-32 sm:pt-10" data-form novalidate data-id={id ?? ''}>
+    <a href="/painel/materiais" class="inline-flex items-center gap-1 text-sm text-stone-600 hover:text-navy-900">← Materiais</a>
+    <h1 class="mt-3 mb-8 font-serif text-[2.25rem] leading-tight" data-h1>{nome}</h1>
+
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
+      <div class="flex flex-col gap-6">
+        <section class="pn-box flex flex-col gap-5 p-5 sm:p-6" aria-labelledby="s-info">
+          <h2 id="s-info" class="pn-h2">Informações</h2>
+          <div class="pn-field" data-campo="nome">
+            <label class="pn-label" for="f-nome">Nome</label>
+            <input id="f-nome" name="nome" class="pn-input" value={m?.nome} placeholder="Ex.: Travertinos" maxlength="60" required />
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+          <div class="pn-field" data-campo="frase">
+            <label class="pn-label" for="f-frase">Frase curta</label>
+            <input id="f-frase" name="frase" class="pn-input" value={m?.frase} placeholder="Ex.: Alta resistência" maxlength="60" required />
+            <p class="pn-help !mt-0">Aparece acima do nome na lista da página inicial e no topo da página da pedra.</p>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+          <div class="pn-field" data-campo="descricao">
+            <label class="pn-label" for="f-desc">Descrição</label>
+            <textarea id="f-desc" name="descricao" class="pn-input !min-h-[120px]" maxlength="1200" placeholder="O que torna esta pedra especial, em duas ou três frases.">{m?.descricao}</textarea>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+        </section>
+
+        <section class="pn-box flex flex-col gap-5 p-5 sm:p-6" aria-labelledby="s-foto">
+          <div>
+            <h2 id="s-foto" class="pn-h2">Foto da pedra</h2>
+            <p class="pn-help">Use uma foto recortada, com fundo transparente (PNG ou WebP). É ela que aparece ao passar o mouse na lista e no topo da página.</p>
+          </div>
+          <div class="pn-field" data-campo="pedra">
+            <div class="drop" data-drop data-tem={m ? '' : undefined}>
+              <input type="file" accept="image/png,image/webp,image/jpeg" class="sr-only" id="f-pedra" data-input />
+              <div class="drop-preview" data-preview>
+                {m && <img src={miniatura(m.pedra, 800)} alt="" />}
+              </div>
+              <label for="f-pedra" class="drop-vazio">
+                <span class="font-medium text-navy-900">Arraste a foto ou clique para escolher</span>
+                <span class="text-[13px]">PNG ou WebP com fundo transparente, até {MAX_MB} MB</span>
+              </label>
+              <label for="f-pedra" class="pn-btn pn-ghost drop-trocar">Trocar foto</label>
+            </div>
+            <p class="pn-erro" data-erro-msg></p>
+          </div>
+        </section>
+
+        <section class="pn-box flex flex-col gap-5 p-5 sm:p-6" aria-labelledby="s-det">
+          <div>
+            <h2 id="s-det" class="pn-h2">Detalhes da página</h2>
+            <p class="pn-help">Um item por linha. Deixe em branco o que não quiser mostrar.</p>
+          </div>
+          <div class="grid gap-5 sm:grid-cols-3">
+            {
+              listas.map((l) => (
+                <div class="pn-field">
+                  <label class="pn-label" for={`f-${l.campo}`}>{l.label}</label>
+                  <textarea id={`f-${l.campo}`} name={l.campo} class="pn-input !min-h-[140px]" placeholder={l.ex}>{l.valor?.join('\n')}</textarea>
+                </div>
+              ))
+            }
+          </div>
+          <div class="pn-field">
+            <label class="pn-label" for="f-cuidados">Cuidados</label>
+            <textarea id="f-cuidados" name="cuidados" class="pn-input !min-h-[100px]" maxlength="1200" placeholder="Como limpar e conservar.">{m?.cuidados}</textarea>
+          </div>
+        </section>
+      </div>
+
+      <aside class="flex flex-col gap-6 lg:sticky lg:top-6 lg:self-start">
+        <section class="pn-box flex flex-col gap-1 p-5 text-[14px]">
+          <p class="font-semibold">Endereço</p>
+          <p class="break-all text-stone-600">/materiais/<span data-slug>{id ?? '…'}</span>/</p>
+          {!id && <p class="pn-help">Gerado a partir do nome.</p>}
+        </section>
+        {id && <button type="button" class="pn-btn pn-danger self-start !px-3" data-excluir>Excluir material</button>}
+      </aside>
+    </div>
+
+    <div class="pn-bar">
+      <div class="mx-auto flex max-w-[1040px] items-center justify-between gap-4 px-5">
+        <p class="text-[13px] text-stone-600" data-sujo aria-live="polite"></p>
+        <div class="flex gap-2">
+          <a href="/painel/materiais" class="pn-btn pn-ghost">Cancelar</a>
+          <button type="submit" class="pn-btn pn-primary min-w-[136px]" data-salvar>{id ? 'Salvar' : 'Criar material'}</button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {
+    id && (
+      <dialog class="pn-dialog" data-dialog-excluir>
+        <form method="dialog" class="flex flex-col gap-5 p-6">
+          <div class="flex flex-col gap-2">
+            <h2 class="text-lg font-semibold">Excluir “{m?.nome}”?</h2>
+            <p class="text-[15px] text-stone-600">A página da pedra sai do site e ela some da lista da página inicial. Não dá para desfazer.</p>
+          </div>
+          <div class="flex justify-end gap-2">
+            <button value="nao" class="pn-btn pn-ghost" autofocus>Cancelar</button>
+            <button value="sim" class="pn-btn bg-[#b42318] text-white hover:bg-[#912018]">Excluir</button>
+          </div>
+        </form>
+      </dialog>
+    )
+  }
+</PainelLayout>
+
+<style>
+  .drop {
+    position: relative;
+    height: 280px;
+    overflow: hidden;
+    border: 1.5px dashed var(--color-stone-400);
+    border-radius: 14px;
+    /* xadrez suave: mostra se o fundo da foto é transparente */
+    background: repeating-conic-gradient(#f3f0eb 0% 25%, #fbfaf8 0% 50%) 0 0 / 20px 20px;
+    transition: border-color 0.2s;
+  }
+  .drop[data-arrastando] {
+    border-color: var(--color-navy-900);
+  }
+  .drop[data-tem] {
+    border-style: solid;
+    border-color: var(--color-stone-200);
+  }
+  .drop-preview {
+    position: absolute;
+    inset: 16px;
+  }
+  .drop-preview :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+  .drop-vazio {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px;
+    text-align: center;
+    color: var(--color-stone-600);
+    cursor: pointer;
+  }
+  .drop[data-tem] .drop-vazio {
+    display: none;
+  }
+  .drop-trocar {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    display: none;
+    cursor: pointer;
+  }
+  .drop[data-tem] .drop-trocar {
+    display: inline-flex;
+  }
+  .pn-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    padding-block: 12px;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    border-top: 1px solid rgb(13 28 49 / 0.08);
+    background: rgb(255 255 255 / 0.92);
+    backdrop-filter: blur(10px);
+  }
+</style>
+
+<script>
+  import { acao, confirmar, toast } from '../lib/ui';
+
+  const form = document.querySelector<HTMLFormElement>('[data-form]')!;
+  const id = form.dataset.id || '';
+  const btn = form.querySelector<HTMLButtonElement>('[data-salvar]')!;
+  const rotulo = btn.textContent!;
+  const sujoEl = form.querySelector<HTMLElement>('[data-sujo]')!;
+  let sujo = false;
+  const marcar = () => {
+    sujo = true;
+    sujoEl.textContent = 'Alterações não salvas';
+  };
+  form.addEventListener('input', marcar);
+  window.addEventListener('beforeunload', (e) => sujo && e.preventDefault());
+
+  // Nome -> título e endereço
+  const slugify = (t: string) =>
+    t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);
+  form.querySelector<HTMLInputElement>('#f-nome')!.addEventListener('input', (e) => {
+    const v = (e.target as HTMLInputElement).value.trim();
+    form.querySelector('[data-h1]')!.textContent = v || 'Novo material';
+    if (!id) form.querySelector('[data-slug]')!.textContent = slugify(v) || '…';
+  });
+
+  // Foto
+  const drop = form.querySelector<HTMLElement>('[data-drop]')!;
+  const input = form.querySelector<HTMLInputElement>('[data-input]')!;
+  let arquivo: File | null = null;
+  const usar = (f?: File) => {
+    if (!f) return;
+    if (!['image/png', 'image/webp', 'image/jpeg'].includes(f.type)) return toast(`"${f.name}" não é PNG, WebP ou JPG`, 'erro');
+    if (f.size > 20 * 1024 * 1024) return toast(`"${f.name}" passa de 20 MB`, 'erro');
+    arquivo = f;
+    const prev = form.querySelector<HTMLElement>('[data-preview]')!;
+    prev.innerHTML = '';
+    const img = new Image();
+    img.src = URL.createObjectURL(f);
+    img.alt = '';
+    prev.append(img);
+    drop.setAttribute('data-tem', '');
+    form.querySelector('[data-campo="pedra"]')!.removeAttribute('data-erro');
+    marcar();
+  };
+  input.addEventListener('change', () => usar(input.files?.[0]));
+  ['dragenter', 'dragover'].forEach((ev) =>
+    drop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      drop.setAttribute('data-arrastando', '');
+    }),
+  );
+  ['dragleave', 'drop'].forEach((ev) => drop.addEventListener(ev, () => drop.removeAttribute('data-arrastando')));
+  drop.addEventListener('drop', (e) => {
+    e.preventDefault();
+    usar(e.dataTransfer?.files?.[0]);
+  });
+
+  // Erros
+  const mostrarErros = (erros: Record<string, string>) => {
+    form.querySelectorAll('[data-campo]').forEach((f) => f.removeAttribute('data-erro'));
+    let primeiro: HTMLElement | null = null;
+    for (const [campo, msg] of Object.entries(erros)) {
+      const f = form.querySelector<HTMLElement>(`[data-campo="${campo}"]`);
+      if (!f) continue;
+      f.setAttribute('data-erro', '');
+      f.querySelector('[data-erro-msg]')!.textContent = msg;
+      primeiro ??= f;
+    }
+    primeiro?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    primeiro?.querySelector<HTMLElement>('input:not([type=file]), textarea')?.focus({ preventScroll: true });
+  };
+  form.querySelectorAll<HTMLElement>('[data-campo] input, [data-campo] textarea').forEach((el) =>
+    el.addEventListener('input', () => el.closest('[data-campo]')!.removeAttribute('data-erro')),
+  );
+
+  // Salvar
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const v = (n: string) => (form.elements.namedItem(n) as HTMLInputElement | null)?.value ?? '';
+    const erros: Record<string, string> = {};
+    if (!v('nome').trim()) erros.nome = 'Dê um nome ao material';
+    if (!v('frase').trim()) erros.frase = 'Escreva uma frase curta';
+    if (!v('descricao').trim()) erros.descricao = 'Escreva uma descrição';
+    if (!drop.hasAttribute('data-tem')) erros.pedra = 'Escolha a foto da pedra';
+    if (Object.keys(erros).length) return mostrarErros(erros);
+
+    const fd = new FormData();
+    if (arquivo) fd.append('pedra', arquivo);
+    fd.append(
+      'dados',
+      JSON.stringify({
+        id,
+        ...Object.fromEntries(['nome', 'frase', 'descricao', 'pontosFortes', 'indicadoPara', 'variedades', 'cuidados'].map((n) => [n, v(n)])),
+      }),
+    );
+    btn.disabled = true;
+    btn.textContent = 'Salvando…';
+    try {
+      const r = await fetch('/api/painel/material', { method: 'POST', body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 401) {
+        sujo = false;
+        location.href = `/painel/entrar?volta=${encodeURIComponent(location.pathname)}`;
+        return;
+      }
+      if (r.status === 422 && j.erros) mostrarErros(j.erros);
+      if (!r.ok) throw new Error(j.erro || 'Não foi possível salvar');
+      sujo = false;
+      location.href = `/painel/materiais?aviso=${encodeURIComponent(id ? 'Material salvo' : 'Material criado')}`;
+    } catch (err) {
+      toast((err as Error).message, 'erro');
+      btn.disabled = false;
+      btn.textContent = rotulo;
+    }
+  });
+
+  // Excluir
+  const dlg = document.querySelector<HTMLDialogElement>('[data-dialog-excluir]');
+  form.querySelector('[data-excluir]')?.addEventListener('click', async () => {
+    if (!dlg || !(await confirmar(dlg))) return;
+    if (await acao({ acao: 'excluirMaterial', id })) {
+      sujo = false;
+      location.href = `/painel/materiais?aviso=${encodeURIComponent('Material excluído')}`;
+    }
+  });
+</script>

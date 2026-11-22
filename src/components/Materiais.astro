@@ -1,16 +1,9 @@
 ---
 import { Image } from 'astro:assets';
-import quartzito from '../assets/pedras/quartzite.webp';
-import marmore from '../assets/pedras/marble-2.webp';
-import granito from '../assets/pedras/granite.webp';
-import onix from '../assets/pedras/onyx.webp';
+import { getMateriais } from '../lib/materiais';
 
-const materiais = [
-  { name: 'Quartzitos', tag: 'Alta resistência', img: quartzito },
-  { name: 'Mármores', tag: 'Veios clássicos', img: marmore },
-  { name: 'Granitos', tag: 'Uso intenso', img: granito },
-  { name: 'Ônix', tag: 'Peças de destaque', img: onix },
-];
+// Editados no painel (/painel/materiais); cada linha leva à página da pedra
+const materiais = (await getMateriais()).map((m) => ({ id: m.id, name: m.data.nome, tag: m.data.frase, img: m.data.pedra }));
 ---
 
 <section id="materiais" class="section-y relative bg-cream" data-materials>
@@ -25,7 +18,7 @@ const materiais = [
         materiais.map((m, i) => (
           <li class={i < materiais.length - 1 ? 'border-b border-stone-400' : ''}>
             <a
-              href="#orcamento"
+              href={`/materiais/${m.id}/`}
               data-material-row={i}
               class="material-row group relative flex items-center gap-4 overflow-hidden px-5 py-4 sm:px-[clamp(1.25rem,4.4vw,4rem)]"
             >

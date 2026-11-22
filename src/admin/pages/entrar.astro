@@ -1,0 +1,142 @@
+---
+import '../../styles/global.css';
+import '../painel.css';
+import Logo from '../../components/Logo.astro';
+import { COOKIE, configurado, sessaoValida } from '../lib/auth';
+
+// Só volta para endereços do próprio painel
+const pedido = Astro.url.searchParams.get('volta') || '';
+const volta = /^\/painel(\/[\w\-/]*)?$/.test(pedido) ? pedido : '/painel';
+if (sessaoValida(Astro.cookies.get(COOKIE)?.value)) return Astro.redirect(volta);
+const pronto = configurado();
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Entrar · Painel MCunha</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400&display=swap"
+    />
+  </head>
+  <body class="grid min-h-dvh place-items-center bg-[#faf9f7] px-5 text-navy-900">
+    <main class="flex w-full max-w-[360px] flex-col items-center gap-8 text-center">
+      <span class="[--logo-scale:0.7]"><Logo /></span>
+
+      <form class="pn-box flex w-full flex-col items-center gap-5 px-6 py-8" data-login data-volta={volta}>
+        <div class="flex flex-col gap-1">
+          <h1 class="font-serif text-[1.75rem] leading-tight">Painel de projetos</h1>
+          <label for="pin" class="text-[15px] text-stone-600">Digite seu PIN de 6 dígitos</label>
+        </div>
+
+        <input
+          id="pin"
+          name="pin"
+          class="pin"
+          type="password"
+          inputmode="numeric"
+          autocomplete="current-password"
+          pattern="[0-9]{6}"
+          maxlength="6"
+          required
+          autofocus
+          disabled={!pronto}
+          aria-describedby="pin-msg"
+        />
+
+        <p id="pin-msg" class="min-h-5 text-[14px]" data-msg aria-live="assertive">
+          {!pronto && <span class="text-[#b42318]">PIN ainda não configurado. Rode <code>npm run painel:pin</code>.</span>}
+        </p>
+
+        <button type="submit" class="pn-btn pn-primary w-full" data-entrar disabled={!pronto}>Entrar</button>
+      </form>
+
+      <a href="/" class="text-sm text-stone-600 hover:text-navy-900">← Voltar ao site</a>
+    </main>
+
+    <script>
+      const form = document.querySelector<HTMLFormElement>('[data-login]')!;
+      const pin = form.querySelector<HTMLInputElement>('#pin')!;
+      const msg = form.querySelector<HTMLElement>('[data-msg]')!;
+      const btn = form.querySelector<HTMLButtonElement>('[data-entrar]')!;
+      let enviando = false;
+
+      const entrar = async () => {
+        if (enviando || !/^\d{6}$/.test(pin.value)) return;
+        enviando = true;
+        btn.disabled = true;
+        msg.textContent = '';
+        try {
+          const r = await fetch('/api/painel/sessao', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ pin: pin.value }),
+          });
+          const j = await r.json().catch(() => ({}));
+          if (!r.ok) throw new Error(j.erro || 'Não foi possível entrar');
+          location.replace(form.dataset.volta || '/painel');
+        } catch (e) {
+          msg.innerHTML = '';
+          const s = document.createElement('span');
+          s.className = 'text-[#b42318]';
+          s.textContent = (e as Error).message;
+          msg.append(s);
+          pin.value = '';
+          pin.focus();
+          form.animate([{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 280 });
+          btn.disabled = false;
+          enviando = false;
+        }
+      };
+
+      // Só números; entra sozinho ao completar 6 dígitos
+      pin.addEventListener('input', () => {
+        pin.value = pin.value.replace(/\D/g, '').slice(0, 6);
+        if (pin.value.length === 6) entrar();
+      });
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        entrar();
+      });
+    </script>
+  </body>
+</html>
+
+<style>
+  /* Campo único com 6 "casas" desenhadas no fundo */
+  .pin {
+    --casa: 44px;
+    --gap: 8px;
+    width: calc(6 * var(--casa) + 5 * var(--gap));
+    max-width: 100%;
+    height: 56px;
+    padding: 0 0 0 calc(var(--casa) / 2 - 0.3em);
+    border: 0;
+    background: repeating-linear-gradient(
+        90deg,
+        var(--color-stone-100) 0 var(--casa),
+        transparent var(--casa) calc(var(--casa) + var(--gap))
+      )
+      0 0 / 100% 100% no-repeat;
+    border-radius: 12px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 24px;
+    letter-spacing: calc(var(--casa) + var(--gap) - 0.6em);
+    color: var(--color-navy-900);
+    caret-color: var(--color-gold-500);
+  }
+  .pin:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(13 28 49 / 0.1);
+  }
+  .pin:disabled {
+    opacity: 0.5;
+  }
+</style>
